@@ -1,0 +1,78 @@
+function Fx0 = pajekaFormula(X,K,gamma,Fz)
+
+    % ----------------------------------------------------------------------
+    %% Compute the residuals - least squares approach - to fit the Fx curve 
+    %  with Fz=Fz_nom, IA=0. Pacejka 1996 Magic Formula
+    % ----------------------------------------------------------------------
+
+    % Define MF coefficients
+
+%     Fz0 = ...
+%     
+%     pCx1 = X(1); 
+%     pDx1 = X(2);
+      
+%     ...
+%      
+%     Dx = ...
+%     Bx = ...    
+%     Fx0 = Dx*...
+
+    pCx1 = X(1); 
+    pDx1 = X(2);
+    pEx1 = X(3);
+    pEx4 = X(4);
+    pKx1 = X(5);
+    pHx1 = X(6);
+    pVx1 = X(7);
+    pDx2 = X(8);
+    pEx2 = X(9);
+    pEx3 = X(10);
+    pHx2 = X(11);
+    pKx2 = X(12);
+    pKx3 = X(13);
+    pVx2 = X(14);
+    pDx3 = X(15);
+
+%   pCx1 = X(1);
+%   pDx1 = X(2);
+%   pDx2 = X(3);
+% 	pDx3 = X(4);
+% 	pEx1 = X(5);
+% 	pEx2 = X(6);
+% 	pEx3 = X(7);
+% 	pEx4 = X(8);
+% 	pKx1 = X(9);
+% 	pKx2 = X(10);
+% 	pKx3 = X(11);
+% 	pHx1 = X(12);
+% 	pHx2 = X(13);
+% 	pVx1 = X(14);
+% 	pVx2 = X(15);
+    
+    Fz0 = 890;
+    dfz = (Fz/Fz0) - 1;
+%     disp(size(dfz));
+    SHx = pHx1 + (pHx2*dfz);
+%     disp(size(SHx));
+    Kx = K + SHx;
+%     disp(size(Kx));
+    Cx = pCx1;
+    mux = (pDx1+(pDx2*dfz))*(1-(pDx3*gamma*gamma));
+%     disp(size(mux));
+    Dx = mux.*Fz;
+%     disp(size(Dx));
+    Kxk = Fz.*(pKx1+(pKx2*dfz)).* exp(-pKx3*dfz);
+%     disp(size(Kxk));
+    Ex = (pEx1+(pEx2*dfz) + (pEx3*dfz.^2)) .* (1-(pEx4*sign(Kx)));
+%     disp(size(Ex));
+    Bx = Kxk / (Cx*Dx);
+    SVx = Fz.*(pVx1+(pVx2*dfz));
+    a = atan(Bx*Kx);
+    b = (Bx*Kx)-a;
+    c = (Bx*Kx)-(Ex.*b);
+    d = sin(Cx * atan(c));
+    Fx0 = (Dx .* d) + SVx;
+
+end
+

@@ -1,0 +1,5 @@
+*.DS_Store
+previous/
+word_files/
+github_repo/
+matlab_code/exercise3/20130222_01_02_03_grandsport.mat

@@ -14,8 +14,12 @@ set(groot, 'defaultLegendInterpreter','latex');
 set(0,'DefaultFigureWindowStyle','docked');
 set(0,'defaultAxesFontSize',20)
 set(0,'DefaultLegendFontSize',40)
-
-
+blue = '#0072BD';
+red = '#D95319';
+orange = '#EDB120';
+green = '#77AC30';
+% plot_colors = [blue; red; orange; green];
+plot_colors = ['r' 'b' 'g' 'm'];
 % ------------------
 %% Load the raw tyre data
 % ------------------
@@ -25,7 +29,7 @@ disp(testid)
 disp(tireid)
 %% Plot the data
 
-figure ('Name','Raw data', 'NumberTitle','off'), clf
+figure (1), clf
 % long slip %
 ax(1) = subplot(511);
 plot(SL,'LineWidth',2)
@@ -51,163 +55,191 @@ ax(5) = subplot(515);
 plot(P,'LineWidth',2)
 grid on
 title('Pressure [kPa]')
-print -depsc ex-21.eps
+print -depsc graphs/ex-21.eps
 
 %% Organize the data
-%   1. create a vector of idxs dividing the dataset by parameters
-%   2. Perfom some plot (es. k VS Fx for all Fz, with gamma = 0, alpha = 0)
+%   create a vector of idxs dividing the dataset by parameters
 
-IAstep = find(abs(diff(IA))>0.5);
-IAstep = [IAstep, round(IA(IAstep))];
+% Pressure indexing
+P_thresh = 20;
+P_step = find(abs(diff(P))>P_thresh);
+P_step = [P_step; length(P)];
+P_test = unique(round(P(P_step)));
+[~,index] = min(abs(P_test'-P),[],2);
+P_fixed = P_test(index);
 
-eps = 0.5 ;
-idx_IA_zero = IA<=eps;
-IA_zero = IA(idx_IA_zero);
+% camber indexing
+IA_thresh = 0.5 ;
+IA_step = find(abs(diff(IA))>IA_thresh);
+IA_step = [IA_step; length(IA)];
+IA_len = length(IA_step);
 
+% slip angle [logitudinal slip] indexing
+SA_thresh = 0.5;
+SA_step = find(abs(diff(SA))>SA_thresh);
+SA_step = [SA_step; length(SA)];
+SA_test = sort(unique(round(SA(SA_step))),'descend');
+[~,index] = min(abs(SA_test'-SA),[],2);
+SA_fixed = SA_test(index);
 
-eps = -0.5 ;
-idx_SA_zero = SA>=eps;
-SA_zero = SA(idx_SA_zero);
+% vertical force indexing
+FZ_test = [-210 -670 -890 -1120]; % tested vertical forces
 
-FZtest = [-210 -670 -890 -1120];
-FZ_fixed = [];
-for i=1:length(FZ)
-    [c,index] = min(abs(FZtest-FZ(i)));
-    FZ_fixed = [FZ_fixed ; FZtest(index)];
+% create a separate bin for each test conducted given the adjusted input parameters
+test_bins = cell(1, IA_len);
+
+bin_start = 1;
+for i=1 :IA_len
+    test_bins{i} = (bin_start:1:IA_step(i))';
+    curr = test_bins{i};
+    % approximate vertical forces FZ to the tested vertical forces
+    [~,index] = min(abs(FZ_test-FZ(curr)),[],2);
+    % [index_n, camber, slip angle, vertical force, pressure,
+    % longitudina slip, longitudinal force]
+    test_bins{i} = [curr, round(IA(curr)), SA_fixed(curr),FZ_test(index)',P_fixed(curr),SL(curr),FX(curr)];
+    bin_start = IA_step(i)+1;
 end
 
-zero_IA_SA = [];
-FX_zero_IA_SA = [];
-SL_zero_IA_SA = [];
-
-for i=1:length(idx_IA_zero)
-    if idx_IA_zero(i) ==1 && idx_SA_zero(i) == 1 % && P(i) < 60
-        zero_IA_SA = [zero_IA_SA; i];
-        FX_zero_IA_SA = [FX_zero_IA_SA; [FX(i),i]];
-        SL_zero_IA_SA = [SL_zero_IA_SA; [SL(i),i]];
+test_bin_params = [];
+% remove bins that has variation in FZ
+for i=1 :length(test_bins)
+    curr = test_bins{i}(:,4);
+    Fz_M = mean(curr);
+    if ~any(FZ_test(:) == Fz_M)
+        test_bins{i} = [];
+    else
+        [~,SL_L] = min(test_bins{i}(:,6));
+        test_bins{i} = test_bins{i}(1:SL_L,:);
+        IA_M = mean(test_bins{i}(:,2));
+        SA_M = mean(test_bins{i}(:,3));
+        P_M = mean(test_bins{i}(:,5));
+        test_bin_params = [test_bin_params; [IA_M,SA_M,Fz_M,P_M]];
     end
 end
 
+test_bins = test_bins(~cellfun('isempty',test_bins));
 
+%% Fig2
+%  Perfom some plot (es. k VS Fx for all Fz, with gamma = 0, alpha = 0)
 
-for i = 1 : length(FZtest)
-    result = find(FZ_fixed==FZtest(i));
-    [c,index_to_plot,ib] = intersect(SL_zero_IA_SA(:,2),result);
+IA_SA_zero = find(test_bin_params(:,1)==0 & test_bin_params(:,2)==0 & test_bin_params(:,4)== 83);
+IA_SA_zero = test_bins(IA_SA_zero);
+IA_SA_zero_t = [];
+for i = 1 : length(IA_SA_zero)
+    IA_SA_zero_t = [IA_SA_zero_t; IA_SA_zero{i}];
+end
+
+for i = 1 : length(FZ_test)
+    FZ_curr = FZ_test(i);
+    index_to_plot = find(IA_SA_zero_t(:,4) == FZ_curr);
     figure(2);
-    ss= strcat('$F_z= ',num2str(FZtest(i)),'$');
-    plot(SL_zero_IA_SA(index_to_plot),FX_zero_IA_SA(index_to_plot),'.','DisplayName',ss,'MarkerSize',15);
+    ss= strcat('$F_z= ',num2str(-1*FZ_test(i)),'$');
+    plot(IA_SA_zero_t(index_to_plot,6),IA_SA_zero_t(index_to_plot,7),':o','Color',plot_colors(i),'DisplayName',ss,'LineWidth',2,'MarkerSize',2);
     hold on
-    legend('Location','southeast','FontSize',30);
-    xlabel('$\kappa$')
-    ylabel('$F_x(\kappa)$');
-    grid on
 end
+legend('Location','southeast','FontSize',30);
+xlabel('$\kappa$')
+ylabel('$F_x(\kappa)$');
+xlim([-0.25 0.25]);
+grid on
+pbaspect([1.5 1 1]);
 hold off
-print -depsc ex-22.eps
+print -depsc graphs/ex-22.eps
 
-%% fig3
-SAstep = find(abs(diff(SA))>0.5);
-SAtest = unique(round(SA(SAstep)));
-SA_fixed = [];
+%% Fig3
 
-for i=1:length(SA)
-    [c,index] = min(abs(SAtest-SA(i)));
-    SA_fixed = [SA_fixed ; SAtest(index)];
+FZ67_IA_zero = find(test_bin_params(:,1)==0 & test_bin_params(:,3)==-670 & test_bin_params(:,4)== 83);
+FZ67_IA_zero = test_bins(FZ67_IA_zero);
+FZ67_IA_zero_t = [];
+for i = 1 : length(FZ67_IA_zero)
+    FZ67_IA_zero_t = [FZ67_IA_zero_t; FZ67_IA_zero{i}];
 end
 
 
-six_IA_zero_SA = [];
-FX_six_IA_zero_SA = [];
-SL_six_IA_zero_SA = [];
-for i=1:length(idx_IA_zero)
-    if idx_IA_zero(i) ==1 && FZ_fixed(i) == -670 % && P(i) < 60
-        six_IA_zero_SA = [six_IA_zero_SA; i];
-        FX_six_IA_zero_SA = [FX_six_IA_zero_SA; [FX(i),i]];
-        SL_six_IA_zero_SA = [SL_six_IA_zero_SA; [SL(i),i]];
-    end
-end
-
-
-for i = 1 : length(SAtest)
-    result = find(SA_fixed==SAtest(i));
-    [c,index_to_plot,ib] = intersect(SL_six_IA_zero_SA(:,2),result);
+for i = 1 : length(SA_test)
+    SA_curr = SA_test(i);
+    index_to_plot = find(FZ67_IA_zero_t(:,3) == SA_curr);
     figure(3);
-    ss= strcat('$\alpha= ',num2str(SAtest(i)),'$');
-    plot(SL_six_IA_zero_SA(index_to_plot),FX_six_IA_zero_SA(index_to_plot),'.','DisplayName',ss,'MarkerSize',15);
+    ss= strcat('$\alpha= ',num2str(-1*SA_test(i)),'$');
+    plot(FZ67_IA_zero_t(index_to_plot,6),FZ67_IA_zero_t(index_to_plot,7),':o','Color',plot_colors(i),'DisplayName',ss,'LineWidth',2,'MarkerSize',2);
     hold on
-    legend('Location','southeast','FontSize',30);
-    xlabel('$\kappa$')
-    ylabel('$F_x(\kappa)$');
-    grid on
 end
-    hold off
-print -depsc ex-23.eps
+legend('Location','southeast','FontSize',30);
+xlabel('$\kappa$')
+ylabel('$F_x(\kappa)$');
+grid on
+xlim([-0.25 0.25]);
+pbaspect([1.5 1 1]);
+hold off
+print -depsc graphs/ex-23.eps
+
 %% Execute the first fitting
 %   1. Select the data alpha = 0, gamma = 0, Fz=Fz_nom
 %   2. Write Pacejka MC and fit the data 
 %   3. Get the parameter
 
-Fz_l = [-1500 -950 -750 -300];
-Fz_h = [-1000 -750 -600 0];
-tol = 0.2;
+FZ89_IA_SA_zero = find(test_bin_params(:,1)==0 & test_bin_params(:,2)==0 & test_bin_params(:,3)==-890 & test_bin_params(:,4)== 83);
+FZ89_IA_SA_zero = test_bins(FZ89_IA_SA_zero);
+FZ89_IA_SA_zero_t = [];
+for i = 1 : length(FZ89_IA_SA_zero)
+    FZ89_IA_SA_zero_t = [FZ89_IA_SA_zero_t; FZ89_IA_SA_zero{i}];
+end
 
-IA_zero_test = find(IA < tol) ;
-Fz_890 = find(FZ > Fz_l(:,2) & FZ < Fz_h(:,2));
-P_82 = find(P>75);
-SA_zero_test = find(SA > -tol);
-
-idx1 = intersect(IA_zero_test,intersect(SA_zero_test,intersect(Fz_890,P_82)));
-FX1 = FX(idx1);
-SL1 = SL(idx1);
-FZ0= 890;
+SL_1 = FZ89_IA_SA_zero_t(:,6);
+FX_1 = FZ89_IA_SA_zero_t(:,7);
+FZ0_1 = -890;
 IA0 = 0;
-X0 = ones(1,15);
-% X0 = [2.7379 3.2434 0.0031 -0.0371 -53.4831 -0.0044 0.0827 0.3242 -0.0041 0.0031 -0.0057 0.0104 0.5577 0.0099 0];
+X0 = -1.5 * ones(1,15);
+X0(8:15) = 0;
+X_fz_nom_1 = fmincon(@(X)resid_pure_Fx(X,FX_1,SL_1,IA0,FZ0_1),X0);
+Fx0 = pajekaFormula(X_fz_nom_1,SL_1,IA0,FZ0_1);
 
-X_fz_nom = fmincon(@(X)resid_pure_Fx(X,FX1,SL1,IA0,FZ0),X0,[],[],[],[],[],[]);
-Fx0 = pajekaFormula(X_fz_nom,SL1,IA0,FZ0);
-% X_trial = [2.7379 3.2434 0.0031 -0.0371 -53.4831 -0.0044 0.0827 0.3242 -0.0041 0.0031 -0.0057 0.0104 0.5577 0.0099 0];
-% Fx0_trial = pajekaFormula(X_trial,SL1,IA0,FZ0);
 figure(4);
-plot(SL1,Fx0,'.r','MarkerSize',10);
+plot(SL_1,FX_1,'.b','MarkerSize',10,'DisplayName','Fx');
 hold on
-plot(SL1,FX1,'.b','LineWidth',2);
-legend({'fitted Fx0','test data'},'Location','southeast','FontSize',30);
-hold off
+plot(SL_1,Fx0,'--r','LineWidth',5,'DisplayName','Fx[fit]');
+
+legend('Location','southeast','FontSize',30);
 xlabel('$\kappa$')
 ylabel('$F_x(\kappa)$');
-% ylim([-3000 3000])
 grid on;
-print -depsc ex-24.eps
+xlim([-0.25 0.25]);
+pbaspect([1.5 1 1]);
+hold off
+print -depsc graphs/ex-24.eps
+
 %% Execute the second fitting
 %   1. Select the data for Fz=change and gamma = 0
 %   2. Fit the data using the previus parameters
 %   4. Get the new parameters
 
-idx2 = intersect(IA_zero_test,intersect(SA_zero_test,P_82));
-FX2 = FX(idx2);
-SL2 = SL(idx2);
-FZ0_2= abs(FZ(idx2));
-FZ_fixed_2 = FZ_fixed(idx2);
+X0_fz = X_fz_nom_1;
 
-X0_fz = X_fz_nom;
+for i = 1 : length(FZ_test)
 
-X_fz_nom_2 = fmincon(@(X)resid_pure_Fx_varFz(X,FX2,SL2,IA0,FZ0_2,X_fz_nom),X0_fz,[],[],[],[],[],[]);
-Fx0_2 = pajekaFormula(X_fz_nom_2,SL2,IA0,FZ0_2);
-% X_trial = [2.7379 3.2434 0.0031 -0.0371 -53.4831 -0.0044 0.0827 0.3242 -0.0041 0.0031 -0.0057 0.0104 0.5577 0.0099 0];
-% Fx0_trial = pajekaFormula(X_trial,SL2,IA0,FZ0_2);
-for i = 1 : length(FZtest)
-    index_to_plot = find(FZ_fixed_2==FZtest(i));
+    FZ_curr = FZ_test(i);
+    index_to_plot = find(IA_SA_zero_t(:,4) == FZ_curr);
+    SL_2 = IA_SA_zero_t(index_to_plot,6);
+    FX_2 = IA_SA_zero_t(index_to_plot,7);
+    FZ0_2= IA_SA_zero_t(index_to_plot,4);
+    X_fz_nom_2 = fmincon(@(X)resid_pure_Fx_varFz(X,FX_2,SL_2,IA0,FZ_curr,X_fz_nom_1),X0_fz);
+    Fx0_2 = pajekaFormula(X_fz_nom_2,SL_2,IA0,FZ_curr);
     figure(5);
-    ss= strcat('$F_z= ',num2str(FZtest(i)),'$');
-    plot(SL2(index_to_plot),Fx0_2(index_to_plot),'.','DisplayName',ss,'MarkerSize',15);
+    ss1= strcat('$F_z= ',num2str(-1*FZ_test(i)),'$');
+    ss2= strcat('$F_z= ',num2str(-1*FZ_test(i)),'[fit]$');
+    plot(SL_2,FX_2,'.','Color',plot_colors(i),'DisplayName',ss1,'LineWidth',2,'MarkerSize',10);
     hold on
-    legend;
-    xlabel('$\kappa$')
-    ylabel('$F_x(\kappa)$');
-    grid on
+    plot(SL_2,Fx0_2,'-','Color',plot_colors(i),'DisplayName',ss2,'LineWidth',2,'MarkerSize',2);
 end
 
+legend('Location','northwest','FontSize',20,'NumColumns',4);
+xlabel('$\kappa$')
+ylabel('$F_x(\kappa)$');
+grid on
+xlim([-0.25 0.25]);
+pbaspect([1.5 1 1]);
+hold off
+print -depsc graphs/ex-25.eps
 
 %% Execute the third fitting
 %   1. Select the data for Fz=change and gamma = change

@@ -113,7 +113,7 @@ for i=1 :length(test_bins)
         test_bins{i} = [];
     else
         [~,SL_L] = min(test_bins{i}(:,6));
-        test_bins{i} = test_bins{i}(1:SL_L,:);
+        test_bins{i} = test_bins{i}(SL_L:end,:); % take only second half of each test [-0.2 -> 0.2]
         IA_M = mean(test_bins{i}(:,2));
         SA_M = mean(test_bins{i}(:,3));
         P_M = mean(test_bins{i}(:,5));
@@ -194,8 +194,8 @@ FX_1 = FZ89_IA_SA_zero_t(:,7);
 FZ0_1 = -890;
 IA0 = 0;
 X0 = -1.5 * ones(1,15);
-X0(8:14) = 0.5;
-X0(15) = 5;
+X0(8:14) = 0;
+X0(15) = 20;
 X_fz_nom_1 = fmincon(@(X)resid_pure_Fx(X,FX_1,SL_1,IA0,FZ0_1),X0);
 Fx0 = pajekaFormula(X_fz_nom_1,SL_1,IA0,FZ0_1);
 
@@ -219,15 +219,17 @@ print -depsc graphs/ex-24.eps
 %   4. Get the new parameters
 
 X0_fz = X_fz_nom_1;
+X_fz_nom_2 = X_fz_nom_1;
 
 for i = 1 : length(FZ_test)
 
     FZ_curr = FZ_test(i);
-    index_to_plot = find(IA_SA_zero_t(:,4) == FZ_curr);
-    SL_2 = IA_SA_zero_t(index_to_plot,6);
-    FX_2 = IA_SA_zero_t(index_to_plot,7);
-    FZ0_2= IA_SA_zero_t(index_to_plot,4);
-    X_fz_nom_2 = fmincon(@(X)resid_pure_Fx_varFz(X,FX_2,SL_2,IA0,FZ_curr,X_fz_nom_1),X0_fz);
+    relivant_ind = find(IA_SA_zero_t(:,4) == FZ_curr);
+    SL_2 = IA_SA_zero_t(relivant_ind,6);
+    FX_2 = IA_SA_zero_t(relivant_ind,7);
+    FZ0_2= IA_SA_zero_t(relivant_ind,4);
+    X_fz_nom_2 = fmincon(@(X)resid_pure_Fx_varFz(X,FX_2,SL_2,IA0,FZ_curr,X_fz_nom_2),X0_fz);
+    X0_fz = X_fz_nom_2;
     Fx0_2 = pajekaFormula(X_fz_nom_2,SL_2,IA0,FZ_curr);
     figure(5);
     ss1= strcat('$F_z= ',num2str(-1*FZ_test(i)),'$');
@@ -259,20 +261,21 @@ for i = 1 : length(FZ89_SA_zero)
 end
 
 X0_ai = X_fz_nom_2;
-
+X_fz_nom_3 = X_fz_nom_2;
+FZ0_3= -890;
 for i = 1 : length(IA_test)
 
     IA_curr = IA_test(i);
-    index_to_plot = find(FZ89_SA_zero_t(:,2) == IA_curr);
-    SL_3 = FZ89_SA_zero_t(index_to_plot,6);
-    FX_3 = FZ89_SA_zero_t(index_to_plot,7);
-    FZ0_3= -890;
-    X_fz_nom_3 = fmincon(@(X)resid_pure_Fx_varAI(X,FX_3,SL_3,IA_curr,FZ0_3,X_fz_nom_2),X0_ai);
+    relivant_ind = find(FZ89_SA_zero_t(:,2) == IA_curr);
+    SL_3 = FZ89_SA_zero_t(relivant_ind,6);
+    FX_3 = FZ89_SA_zero_t(relivant_ind,7);
+    X_fz_nom_3 = fmincon(@(X)resid_pure_Fx_varAI(X,FX_3,SL_3,IA_curr,FZ0_3,X_fz_nom_3),X0_ai);
+    X0_ai = X_fz_nom_3;
     Fx0_3 = pajekaFormula(X_fz_nom_3,SL_3,IA_curr,FZ0_3);
     figure(6);
     ss1= strcat('$\gamma= ',num2str(IA_test(i)),'$');
     ss2= strcat('$\gamma= ',num2str(IA_test(i)),'[fit]$');
-    plot(SL_3,FX_3,'.','Color',plot_colors(i),'DisplayName',ss1,'LineWidth',2,'MarkerSize',10);
+    plot(SL_3,FX_3,':','Color',plot_colors(i),'DisplayName',ss1,'LineWidth',2,'MarkerSize',22);
     hold on
     plot(SL_3,Fx0_3,'-','Color',plot_colors(i),'DisplayName',ss2,'LineWidth',2,'MarkerSize',2);
 end

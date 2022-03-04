@@ -5,20 +5,20 @@
 \textbf{Q. Plot lateral and longitudinal velocity}
 
         \begin{figure}[ht]
-        \includegraphics[scale=0.35]{ex3/ex-31.eps}
+        \includegraphics[scale=0.38]{ex3/ex-31.eps}
         \centering
-        \caption{lateral and longitudinal velocity vs. time}
+        \caption{lateral and longitudinal velocity vs time}
         \label{llv}
         \end{figure}
         
-From Figure \ref{llv}, the magnitude of the longitudinal velocity is higher than the lateral velocity.
+From Figure \ref{llv}, the magnitude of the longitudinal velocity is higher than the lateral velocity. This matches what was expected as the vehicle mainly moves longitudinally and only laterally while slipping.
 
 \textbf{Q. Evaluate the longitudinal speed using the Hall-effect wheel speed sensors and compare the data with the INS data}
 
         \begin{figure}[ht]
-        \includegraphics[scale=0.3]{ex3/ex-32.eps}
+        \includegraphics[scale=0.35]{ex3/ex-32.eps}
         \centering
-        \caption{longitudinal speed vs time [INS and hall effect sensors RL and RR]}
+        \caption{INS vs RL/RR hall effect sensors $v_{x}$}
         \label{lsvt}
         \end{figure}
  
@@ -28,14 +28,14 @@ The longitudinal speed for the vehicle was calculated using the hall effect sens
     \upsilon_{wheel} = \frac{c}{\overline{T}}
 \end{equation}
 
-The INS velocity is sometimes bigger than the hall effect calculated speeds, especially during braking [partial wheel lock]. There is no obvious difference between them.
+The INS velocity is sometimes bigger than the hall effect calculated speeds, especially during braking [partial wheel lock]. There is no obvious difference between them (Figure \ref{lsvt}).
 
 \textbf{Q. Evaluate the lateral acceleration using the relation with the yaw-rate and the longitudinal speed.}
 
         \begin{figure}[ht]
-        \includegraphics[scale=0.3]{ex3/ex-33.eps}
+        \includegraphics[scale=0.35]{ex3/ex-34.eps}
         \centering
-        \caption{filtered INS lateral acceleration vs. the calculated}
+        \caption{filtered INS vs calculated $a_{y}$}
         \label{fila}
         \end{figure}
 
@@ -46,21 +46,20 @@ The lateral acceleration was calculated by multiplying the yaw rate by the longi
 The derived acceleration [shown in Figure \ref{ilavd}] is quite noisier than the one provided by INS. The derived acceleration was filtered using a moving mean. This resulted in a far better matching acceleration compared to the INS data.
 
         \begin{figure}[ht]
-        \includegraphics[scale=0.3]{ex3/ex-34.eps}
+        \includegraphics[scale=0.32]{ex3/ex-35.eps}
         \centering
-        \caption{The INS longitudinal acceleration vs derived longitudinal acceleration}
+        \caption{INS vs RR wheel hall effect derived $a_{x}$}
         \label{ilavd}
         \end{figure}
 
-\newpage
 \textbf{Q. Evaluate the side slip angle.}
 
 In Figure \ref{iavtc}, the side slip angle was calculated using the longitudinal and lateral speed. derived acceleration is quite a lot noisier than the one provided by the INS.
 
         \begin{figure}[ht]
-        \includegraphics[scale=0.3]{ex3/ex-35.eps}
+        \includegraphics[scale=0.31]{ex3/ex-36.eps}
         \centering
-        \caption{the INS angle vs the calculated side slip angle }
+        \caption{INS vs calculated side slip angle}
         \label{iavtc}
         \end{figure}
 \end{document}

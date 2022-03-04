@@ -35,13 +35,5 @@ function Fx0 = pajekaFormula(X,K,gamma,Fz)
     SVx = Fz .* (pVx1 + pVx2*dfz);
       
     Fx0 = Dx .* sin(Cx * atan(Bx * Kx - Ex .* (Bx * Kx - atan(Bx * Kx)))) + SVx;
-
-    disp(size(SHx));
-    disp(size(Kx));
-    disp(size(Ux));
-    disp(size(Dx));
-    disp(size(Kxk));
-    disp(size(Ex));
-
 end
 

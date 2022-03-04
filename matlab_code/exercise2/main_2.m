@@ -73,6 +73,10 @@ IA_thresh = 0.5 ;
 IA_step = find(abs(diff(IA))>IA_thresh);
 IA_step = [IA_step; length(IA)];
 IA_len = length(IA_step);
+IA_test = sort(unique(round(IA(IA_step))));
+[~,index] = min(abs(IA_test'-IA),[],2);
+IA_fixed = IA_test(index);
+
 
 % slip angle [logitudinal slip] indexing
 SA_thresh = 0.5;
@@ -190,14 +194,15 @@ FX_1 = FZ89_IA_SA_zero_t(:,7);
 FZ0_1 = -890;
 IA0 = 0;
 X0 = -1.5 * ones(1,15);
-X0(8:15) = 0;
+X0(8:14) = 0.5;
+X0(15) = 5;
 X_fz_nom_1 = fmincon(@(X)resid_pure_Fx(X,FX_1,SL_1,IA0,FZ0_1),X0);
 Fx0 = pajekaFormula(X_fz_nom_1,SL_1,IA0,FZ0_1);
 
 figure(4);
-plot(SL_1,FX_1,'.b','MarkerSize',10,'DisplayName','Fx');
+plot(SL_1,FX_1,'.b','MarkerSize',10,'DisplayName','$F_x$');
 hold on
-plot(SL_1,Fx0,'--r','LineWidth',5,'DisplayName','Fx[fit]');
+plot(SL_1,Fx0,'--r','LineWidth',5,'DisplayName','$F_x$ [fit]');
 
 legend('Location','southeast','FontSize',30);
 xlabel('$\kappa$')
@@ -245,3 +250,38 @@ print -depsc graphs/ex-25.eps
 %   1. Select the data for Fz=change and gamma = change
 %   2. Fit the data using the previus parameters
 %   4. Get the last parameters
+
+FZ89_SA_zero = find(test_bin_params(:,2)==0 & test_bin_params(:,3)==-890 & test_bin_params(:,4)== 83);
+FZ89_SA_zero = test_bins(FZ89_SA_zero);
+FZ89_SA_zero_t = [];
+for i = 1 : length(FZ89_SA_zero)
+    FZ89_SA_zero_t = [FZ89_SA_zero_t; FZ89_SA_zero{i}];
+end
+
+X0_ai = X_fz_nom_2;
+
+for i = 1 : length(IA_test)
+
+    IA_curr = IA_test(i);
+    index_to_plot = find(FZ89_SA_zero_t(:,2) == IA_curr);
+    SL_3 = FZ89_SA_zero_t(index_to_plot,6);
+    FX_3 = FZ89_SA_zero_t(index_to_plot,7);
+    FZ0_3= -890;
+    X_fz_nom_3 = fmincon(@(X)resid_pure_Fx_varAI(X,FX_3,SL_3,IA_curr,FZ0_3,X_fz_nom_2),X0_ai);
+    Fx0_3 = pajekaFormula(X_fz_nom_3,SL_3,IA_curr,FZ0_3);
+    figure(6);
+    ss1= strcat('$\gamma= ',num2str(IA_test(i)),'$');
+    ss2= strcat('$\gamma= ',num2str(IA_test(i)),'[fit]$');
+    plot(SL_3,FX_3,'.','Color',plot_colors(i),'DisplayName',ss1,'LineWidth',2,'MarkerSize',10);
+    hold on
+    plot(SL_3,Fx0_3,'-','Color',plot_colors(i),'DisplayName',ss2,'LineWidth',2,'MarkerSize',2);
+end
+
+legend('Location','northwest','FontSize',20,'NumColumns',4);
+xlabel('$\kappa$')
+ylabel('$F_x(\kappa)$');
+grid on
+xlim([-0.25 0.25]);
+pbaspect([1.5 1 1]);
+hold off
+print -depsc graphs/ex-26.eps

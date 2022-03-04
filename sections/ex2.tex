@@ -28,7 +28,7 @@ Figure \ref{lsvlf} suggests that the Longitudinal Force $\fx$\ increases with th
 
 The Longitudinal Force $\fx$\ in Figure \ref{lsvlfv} shows an inverse relationship with the side slip angle. 
         \begin{figure}[ht]
-        \includegraphics[scale=0.35]{ex2/ex-23.eps}
+        \includegraphics[scale=0.34]{ex2/ex-23.eps}
         \centering
         \caption{$\kappa$ vs $\fx$\ at vertical force = 670 based on slip angle}
         \label{lsvlfv}
@@ -45,7 +45,7 @@ The Longitudinal Force $\fx$\ in Figure \ref{lsvlfv} shows an inverse relationsh
         \label{faopt}
         \end{figure}
 
-In Figure \ref{faopt}, the data was filtered based on the following criteria: $\fzz$\ = 890, $\alpha$\ = 0, $\gamma$\ = 0. The first 7 coefficients were optimized using the $fmincon$ function in Matlab. The 7 coefficients initial guess vector was chosen randomly. The initial guess vector has proven to be quite important as running the code multiple times showed a curve that did not fit the data at all, which means the optimizer was stuck at a local minima. However, most of the time the initial guess gave a very good fit that converged to the correct global minima. 
+In Figure \ref{faopt}, the data was filtered based on the following criteria: $\fzz$\ = 890, $\alpha$\ = 0, $\gamma$\ = 0. The first 7 coefficients were optimized using the $fmincon$ function in Matlab. I started with a random coefficients initial guess vector. The initial guess vector has proven to be quite important as running the code multiple times showed a curve that did not fit the data at all, which means the optimizer was stuck at a local minima. However, most of the time the initial guess gave a very good fit that converged to the correct global minima. Later on I optimized the initial guesses to give consistent good fitting results based on trial and error.
 
 
 \textbf{Q. Now consider the data with the 4 different values of $\fz$, but still $\gamma$ = 0 (and $\alpha$ = 0). This enables the fitting of the parameters: X2 =\{$\pdxt$,$\pext$,$\pextt$,$\phxt$,$\pkxt$,$\pkxtt$,$\pvxt$\}. Plot the fitted and raw curves $\fxz$\ vs $\kappa$ for the 4 values of $\fz$\ and comment the results.}
@@ -64,4 +64,12 @@ The real $\fx$\ data for each separate $\fz$\ are plotted against the output of 
 $\alpha$ = 0). This enables the fitting of the parameter:
 X3 = {$\pdxt$}. Plot the fitted and raw curves $\fxz$\ vs $\kappa$ for the 3 values of $\gamma$ and comment the results.}
 
+        \begin{figure}[ht]
+        \includegraphics[scale=0.35]{ex2/ex-26.eps}
+        \centering
+        \caption{Fitted $\fx$\ vs test data after third fitting for each $\gamma$}
+        \label{ffvtdg}
+        \end{figure}
+
+Figure \ref{ffvtdg} shows the results of the third fitting. The data from $\gamma$ = 0 fits properly as shown previously in Figure \ref{faopt}. However, the fitting on the other $\gamma$ values did not. Trying different initial values for {$\pdxt$} did not yield any better results.
 \end{document}

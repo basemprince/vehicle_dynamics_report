@@ -119,8 +119,9 @@ function dataAnalysis(model_sim,vehicle_data,Ts)
     % ---------------------------------
     %% PLOTS
     % ---------------------------------
-output_file = '../graphs/q%d/ex-4%d%s.eps';
-q = 1;                  
+    output_file = '../graphs/q%d/ex-4%d%s.eps';
+    q = 1;              
+
     % ---------------------------------
     %% Plot vehicle inputs
     % ---------------------------------
@@ -144,7 +145,7 @@ q = 1;
     xlim([0 time_sim(end)])
     xlabel('Time (s)')
     pbaspect([1 1 1]);
-    print(gcf, sprintf(output_file,q,q,'a'),'-depsc2');
+    exportgraphics(gcf,sprintf(output_file,q,q,'a'),'ContentType','vector')
     % ---------------------------------
     %% Plot vehicle motion
     % ---------------------------------
@@ -173,7 +174,7 @@ q = 1;
     xlim([0 time_sim(end)])
     xlabel('Time (s)')
     pbaspect([1 1 1]);
-    print(gcf, sprintf(output_file,q,q,'b'),'-depsc2');
+    exportgraphics(gcf,sprintf(output_file,q,q,'b'),'ContentType','vector')
     % ---------------------------------
     %% Plot steering angles
     % ---------------------------------
@@ -196,7 +197,6 @@ q = 1;
     pbaspect([1 1 1]);
     % --- delta_fl --- %
     ax(3) = subplot(223);
-%     hold on
     plot(time_sim,delta_fl,'b','LineWidth',2)
     grid on
     ylabel('$\delta_{fl}$ [deg]')
@@ -220,8 +220,7 @@ q = 1;
     set(ax(2),'position',[.0 .1 .35 .35])
     set(ax(3),'position',[.25 .55 .35 .35])
     set(ax(4),'position',[.25 .1 .35 .35])
-    
-    print(gcf, sprintf(output_file,q,q,'c'),'-depsc2');
+    exportgraphics(gcf,sprintf(output_file,q,q,'c'),'ContentType','vector')
     
     
     % -------------------------------
@@ -293,7 +292,7 @@ q = 1;
     xlabel('Time (s)')
     pbaspect([1 1 1]);
 
-    print(gcf, sprintf(output_file,q,q,'d'),'-depsc2');
+    exportgraphics(gcf,sprintf(output_file,q,q,'d'),'ContentType','vector')
     % linkaxes(ax,'x')
     clear ax
 
@@ -366,7 +365,7 @@ q = 1;
     xlabel('Time (s)')
     pbaspect([1 1 1])
     
-    print(gcf, sprintf(output_file,q,q,'f'),'-depsc2');
+    exportgraphics(gcf,sprintf(output_file,q,q,'f'),'ContentType','vector')
     % linkaxes(ax,'x')
     clear ax
 
@@ -438,7 +437,7 @@ q = 1;
     xlim([0 time_sim(end)])
     xlabel('Time (s)')
     pbaspect([1 1 1])
-    print(gcf, sprintf(output_file,q,q,'g'),'-depsc2');
+    exportgraphics(gcf,sprintf(output_file,q,q,'g'),'ContentType','vector')
     % linkaxes(ax,'x')
     clear ax
 
@@ -511,7 +510,7 @@ q = 1;
     xlabel('Time (s)')
     pbaspect([1 1 1])
     
-     print(gcf, sprintf(output_file,q,q,'h'),'-depsc2');
+    exportgraphics(gcf,sprintf(output_file,q,q,'h'),'ContentType','vector')
     % linkaxes(ax,'x')
     clear ax
     
@@ -557,7 +556,7 @@ q = 1;
     set(ax(3),'position',[.25 .55 .35 .35])
     set(ax(4),'position',[.25 .1 .35 .35])
     
-    print(gcf, sprintf(output_file,q,q,'i'),'-depsc2');
+    exportgraphics(gcf,sprintf(output_file,q,q,'i'),'ContentType','vector')
     % linkaxes(ax,'x')
     clear ax
     
@@ -620,7 +619,7 @@ q = 1;
     set(ax(3),'position',[.25 .55 .35 .35])
     set(ax(4),'position',[.25 .1 .35 .35])
     
-    print(gcf, sprintf(output_file,q,q,'j'),'-depsc2');
+    exportgraphics(gcf,sprintf(output_file,q,q,'j'),'ContentType','vector')
     % linkaxes(ax,'x')
     clear ax
 
@@ -652,7 +651,7 @@ q = 1;
     xlim([0 time_sim(end)])
     xlabel('Time (s)')
     pbaspect([1 1 1])
-    print(gcf, sprintf(output_file,q,q,'k'),'-depsc2');
+    exportgraphics(gcf,sprintf(output_file,q,q,'k'),'ContentType','vector')
     % linkaxes(ax,'x')
     clear ax
 
@@ -669,7 +668,7 @@ q = 1;
     title('G-G diagram from simulation data','FontSize',18)
     grid on
     pbaspect([1 1 1])
-    print(gcf, sprintf(output_file,q,q,'l'),'-depsc2');
+    exportgraphics(gcf,sprintf(output_file,q,q,'l'),'ContentType','vector')
     % -------------------------------
     %% Plot vehicle path
     % -------------------------------
@@ -696,6 +695,6 @@ q = 1;
     grid on
     hold off
     pbaspect([1 1 1])
-    print(gcf, sprintf(output_file,q,q,'m'),'-depsc2');
+    exportgraphics(gcf,sprintf(output_file,q,q,'m'),'ContentType','vector')
 end
     

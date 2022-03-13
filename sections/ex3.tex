@@ -1,11 +1,10 @@
-\documentclass[../main.tex]{subfiles}
-\begin{document}
-\subsection*{Exercise 1 – Understanding vehicle data}
+\chapter{Vehicle Data Analysis Exercises}
+\section{Exercise 1 – Understanding Vehicle Data}
 
 \textbf{Q. Plot lateral and longitudinal velocity}
 
         \begin{figure}[ht]
-        \includegraphics[scale=0.38]{ex3/ex-31.eps}
+        \includegraphics[width=10cm]{ex3/ex-31.eps}
         \centering
         \caption{lateral and longitudinal velocity vs time}
         \label{llv}
@@ -16,7 +15,7 @@ From Figure \ref{llv}, the magnitude of the longitudinal velocity is higher than
 \textbf{Q. Evaluate the longitudinal speed using the Hall-effect wheel speed sensors and compare the data with the INS data}
 
         \begin{figure}[ht]
-        \includegraphics[scale=0.35]{ex3/ex-32.eps}
+        \includegraphics[width=10cm]{ex3/ex-32.eps}
         \centering
         \caption{INS vs RL/RR hall effect sensors $v_{x}$}
         \label{lsvt}
@@ -33,7 +32,7 @@ The INS velocity is sometimes bigger than the hall effect calculated speeds, esp
 \textbf{Q. Evaluate the lateral acceleration using the relation with the yaw-rate and the longitudinal speed.}
 
         \begin{figure}[ht]
-        \includegraphics[scale=0.35]{ex3/ex-34.eps}
+        \includegraphics[width=10cm]{ex3/ex-34.eps}
         \centering
         \caption{filtered INS vs calculated $a_{y}$}
         \label{fila}
@@ -46,7 +45,7 @@ The lateral acceleration was calculated by multiplying the yaw rate by the longi
 The derived acceleration [shown in Figure \ref{ilavd}] is quite noisier than the one provided by INS. The derived acceleration was filtered using a moving mean. This resulted in a far better matching acceleration compared to the INS data.
 
         \begin{figure}[ht]
-        \includegraphics[scale=0.32]{ex3/ex-35.eps}
+        \includegraphics[width=10cm]{ex3/ex-35.eps}
         \centering
         \caption{INS vs RR wheel hall effect derived $a_{x}$}
         \label{ilavd}
@@ -57,9 +56,8 @@ The derived acceleration [shown in Figure \ref{ilavd}] is quite noisier than the
 In Figure \ref{iavtc}, the side slip angle was calculated using the longitudinal and lateral speed. derived acceleration is quite a lot noisier than the one provided by the INS.
 
         \begin{figure}[ht]
-        \includegraphics[scale=0.31]{ex3/ex-36.eps}
+        \includegraphics[width=10cm]{ex3/ex-36.eps}
         \centering
         \caption{INS vs calculated side slip angle}
         \label{iavtc}
         \end{figure}
-\end{document}

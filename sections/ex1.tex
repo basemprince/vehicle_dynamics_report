@@ -1,8 +1,6 @@
-\documentclass[../main.tex]{subfiles}
-\begin{document}
+\chapter{Tire Model Exercises - 1}
 
-
-\subsection*{Exercise 1 – pure longitudinal slip}
+\section{Exercise 1 – Pure Longitudinal Slip}
 \textbf{Q. Using the Pacejka Magic Formula, plot the longitudinal tire force $\fxz$\ obtained in pure longitudinal slip conditions, as a function of slip $\kappa$ $\in$ [−1, 1]. Which comments are you able to make about the obtained graph?}
         \begin{figure}[h]
         \includegraphics[scale=0.5]{ex1/e-11.eps}
@@ -47,27 +45,27 @@ The linear approximation allows to neglect the complex Pacejka Magic Formula, bu
 
 \newpage
 
-\subsubsection*{Exercise 2 - combined slip}
+\section{Exercise 2 - Combined Slip}
 
 \textbf{Q. Assume that the tire contact point velocity components along the tire x and y axes are $\vcx$\ = 15 m/s and $\vcy$\ = −1.3 m/s, respectively. Calculate the side slip angle $\alpha$. Moreover, compute the combined tire force $\fx$\ using this value of $\alpha$, for a longitudinal slip $\kappa$ = 0.08.}
 
 Alpha can be calculated using the practical slip approach:
 
-\begin{equation}\label{eq:1} % add * after equation for unnumbered equations
+\begin{equation}\label{eq:1.1} % add * after equation for unnumbered equations
     \mbox{side slip angle  }  \alpha = - \arctan(\frac{\vsy}{\vcx}) = - \arctan(\frac{\vcy}{\vcx})
 \end{equation}
 
-Using equation \ref{eq:2} to calculate $\gxa$\ (weighing function). Once calculated, $\fxz$\ can now be multiplied by $\gxa$\ (weighing function) to get the combined tire force $\fx$.
+Using equation \ref{eq:1.2} to calculate $\gxa$\ (weighing function). Once calculated, $\fxz$\ can now be multiplied by $\gxa$\ (weighing function) to get the combined tire force $\fx$.
 
-\begin{equation}\label{eq:2} % add * after equation for unnumbered equations
+\begin{equation}\label{eq:1.2} % add * after equation for unnumbered equations
     \gxa = - \dxa \cos(\cxa \arctan(\bxa(\alpha + \shxa))
 \end{equation}{\vspace{-4em}}
 
-\begin{equation}\label{eq:3} % add * after equation for unnumbered equations
+\begin{equation}\label{eq:1.3} % add * after equation for unnumbered equations
     \fxz = \dx \sin(\cx \arctan(\bx \kx - \ex(\bx \kx - \arctan(\bx \kx)))
 \end{equation}{\vspace{-4em}}
 
-\begin{equation}\label{eq:4} % add * after equation for unnumbered equations
+\begin{equation}\label{eq:1.4} % add * after equation for unnumbered equations
     \fx = \gxa \fxz
 \end{equation}
 
@@ -78,12 +76,6 @@ calculated side slip alpha = 0.086451 \\
 calculated weighing function = 0.724417 \\
 calculated combined force $\fx$\ = 1450.424623
 \end{minipage}}\par}
-
-% \begin{align} % good for multi-line equations. Alternatively use gather which centers equations
-%      \frac{D}{D_0} &= e^{-\frac{\mu}{\rho}\rho x} \\
-%     ln\left(\frac{D}{D_0}\right) &= -\frac{\mu}{\rho}\rho x \\
-%     x &= \frac{-ln\left(\frac{D}{D_0}\right)}{\frac{\mu}{\rho}\rho}
-% \end{align}
 
 \textbf{Q. Plot the combined longitudinal tire force $\fx$\ as a function of $\kappa$ $\in$ [−1, 1], for the following levels of side slip angle $\alpha$ = \{0, 2, 4, 6, 8\} degrees. Which comments can you make about the 5 curves obtained in this way? Finally, plot the weighting function $\gxa$\ as a function of $\kappa$ $\in$ [−1, 1] for each of the previously defined values of $\alpha$, and briefly comment also these 5 curves.}
 
@@ -104,5 +96,3 @@ Figure \ref{wf} shows the plots obtained for the weighing function $\gxa$\ for e
         \caption{Weighing function $\gxa$\ as a function of $\kappa$}
         \label{wf}
         \end{figure}
-
-\end{document}

@@ -120,7 +120,7 @@ function dataAnalysis(model_sim,vehicle_data,Ts)
     %% PLOTS
     % ---------------------------------
     output_file = '../graphs/q%d/ex-4%d%s.eps';
-    q = 1;              
+    q = 3;              
 
     % ---------------------------------
     %% Plot vehicle inputs
@@ -151,7 +151,7 @@ function dataAnalysis(model_sim,vehicle_data,Ts)
     % ---------------------------------
     figure('Name','veh motion','NumberTitle','off'), clf   
     % --- u --- %
-    ax(1) = subplot(131);
+    ax(1) = subplot(141);
     plot(time_sim,u*3.6,'b','LineWidth',2)
     grid on
     ylabel('$u$ [km/h]')
@@ -159,7 +159,7 @@ function dataAnalysis(model_sim,vehicle_data,Ts)
     xlabel('Time (s)')
     pbaspect([1 1 1]);
     % --- v --- %
-    ax(2) = subplot(132);
+    ax(2) = subplot(142);
     plot(time_sim,v,'b','LineWidth',2)
     grid on
     ylabel('$v$ [m/s]')
@@ -167,13 +167,27 @@ function dataAnalysis(model_sim,vehicle_data,Ts)
     xlabel('Time (s)')
     pbaspect([1 1 1]);
     % --- Omega --- %
-    ax(3) = subplot(133);
+    ax(3) = subplot(143);
     plot(time_sim,Omega,'b','LineWidth',2)
     grid on
     ylabel('$\Omega$ [rad/s]')
     xlim([0 time_sim(end)])
     xlabel('Time (s)')
     pbaspect([1 1 1]);
+    % --- ax --- %
+    ax(4) = subplot(144);
+    plot(time_sim(2:end),dot_u - Omega(2:end).*v(2:end),'m','LineWidth',2,'displayName','$\dot{u}-\Omega v$')
+    hold on
+    plot(time_sim(2:end),diff(u)/Ts,'--g','LineWidth',2,'displayName','$\dot{u}$')
+    plot(time_sim(2:end),Ax_filt,'-.b','LineWidth',1,'displayName','filt $\dot{u}-\Omega v$')
+    plot(time_sim(2:end),dot_u_filt,'-.r','LineWidth',1,'displayName','filt $\dot{u}$')
+    hold off
+    grid on
+    ylabel('$a_{x}$ $[m/s^2]$')
+    legend('Location','northeast')
+    xlim([0 time_sim(end)])
+    xlabel('Time (s)')
+    pbaspect([1 1 1])
     exportgraphics(gcf,sprintf(output_file,q,q,'b'),'ContentType','vector')
     % ---------------------------------
     %% Plot steering angles
@@ -237,7 +251,7 @@ function dataAnalysis(model_sim,vehicle_data,Ts)
     pbaspect([1 1 1]);
     % --- alpha_rl --- %
     ax(2) = subplot(242);
-    plot(time_sim,alpha_rl,'b','LineWidth',2)
+    plot(time_sim,alpha_rl,'m','LineWidth',2)
     grid on
     ylabel('$\alpha_{rl}$ [deg]')
     xlim([0 time_sim(end)])
@@ -253,7 +267,7 @@ function dataAnalysis(model_sim,vehicle_data,Ts)
     pbaspect([1 1 1]);
     % --- alpha_fl --- %
     ax(4) = subplot(244);
-    plot(time_sim,alpha_fl,'b','LineWidth',2)
+    plot(time_sim,alpha_fl,'m','LineWidth',2)
     grid on
     ylabel('$\alpha_{fl}$ [deg]')
     xlim([0 time_sim(end)])
@@ -261,7 +275,7 @@ function dataAnalysis(model_sim,vehicle_data,Ts)
     pbaspect([1 1 1]);
     % --- Fy_rr --- %
     ax(5) = subplot(245);
-    plot(time_sim,Fy_rr,'m','LineWidth',2)
+    plot(time_sim,Fy_rr,'b','LineWidth',2)
     grid on
     ylabel('$Fy_{rr}$ [N]')
     xlim([0 time_sim(end)])
@@ -271,13 +285,13 @@ function dataAnalysis(model_sim,vehicle_data,Ts)
     ax(6) = subplot(246);
     plot(time_sim,Fy_rl,'m','LineWidth',2)
     grid on
-    ylabel('$Fy_{rl}$ [Nm]')
+    ylabel('$Fy_{rl}$ [N]')
     xlim([0 time_sim(end)])
     xlabel('Time (s)')
     pbaspect([1 1 1]);
     % --- Fy_fr --- %
     ax(7) = subplot(247);
-    plot(time_sim,Fy_fr,'m','LineWidth',2)
+    plot(time_sim,Fy_fr,'b','LineWidth',2)
     grid on
     ylabel('$Fy_{fr}$ [N]')
     xlim([0 time_sim(end)])
@@ -291,7 +305,8 @@ function dataAnalysis(model_sim,vehicle_data,Ts)
     xlim([0 time_sim(end)])
     xlabel('Time (s)')
     pbaspect([1 1 1]);
-
+    linkaxes([ax(1) ax(2) ax(3) ax(4)],'xy');
+    linkaxes([ax(5) ax(6) ax(7) ax(8)],'xy');
     exportgraphics(gcf,sprintf(output_file,q,q,'d'),'ContentType','vector')
     % linkaxes(ax,'x')
     clear ax
@@ -310,7 +325,7 @@ function dataAnalysis(model_sim,vehicle_data,Ts)
     pbaspect([1 1 1])
     % --- kappa_rl --- %
     ax(2) = subplot(242);
-    plot(time_sim,kappa_rl,'b','LineWidth',2)
+    plot(time_sim,kappa_rl,'m','LineWidth',2)
     grid on
     ylabel('$\kappa_{rl}$ [-]')
     xlim([0 time_sim(end)])
@@ -326,15 +341,17 @@ function dataAnalysis(model_sim,vehicle_data,Ts)
     pbaspect([1 1 1])
     % --- kappa_fl --- %
     ax(4) = subplot(244);
-    plot(time_sim,kappa_fl,'b','LineWidth',2)
+    plot(time_sim,kappa_fl,'m','LineWidth',2)
     grid on
     ylabel('$\kappa_{fl}$ [-]')
     xlim([0 time_sim(end)])
     xlabel('Time (s)')
     pbaspect([1 1 1])
+    
+    linkaxes([ax(1) ax(2) ax(3) ax(4)],'xy');
     % --- Fx_rr --- %
     ax(5) = subplot(245);
-    plot(time_sim,Fx_rr,'m','LineWidth',2)
+    plot(time_sim,Fx_rr,'b','LineWidth',2)
     grid on
     ylabel('$Fx_{rr}$ [N]')
     xlim([0 time_sim(end)])
@@ -350,7 +367,7 @@ function dataAnalysis(model_sim,vehicle_data,Ts)
     pbaspect([1 1 1])
     % --- Fx_fr --- %
     ax(7) = subplot(247);
-    plot(time_sim,Fx_fr,'m','LineWidth',2)
+    plot(time_sim,Fx_fr,'b','LineWidth',2)
     grid on
     ylabel('$Fx_{fr}$ [N]')
     xlim([0 time_sim(end)])
@@ -364,6 +381,7 @@ function dataAnalysis(model_sim,vehicle_data,Ts)
     xlim([0 time_sim(end)])
     xlabel('Time (s)')
     pbaspect([1 1 1])
+    linkaxes([ax(5) ax(6) ax(7) ax(8)],'xy');
     
     exportgraphics(gcf,sprintf(output_file,q,q,'f'),'ContentType','vector')
     % linkaxes(ax,'x')
@@ -383,7 +401,7 @@ function dataAnalysis(model_sim,vehicle_data,Ts)
     pbaspect([1 1 1])
     % --- omega_rl --- %
     ax(2) = subplot(242);
-    plot(time_sim,omega_rl,'b','LineWidth',2)
+    plot(time_sim,omega_rl,'m','LineWidth',2)
     grid on
     ylabel('$\omega_{rl}$ [rad/s]')
     xlim([0 time_sim(end)])
@@ -399,15 +417,16 @@ function dataAnalysis(model_sim,vehicle_data,Ts)
     pbaspect([1 1 1])
     % --- omega_fl --- %
     ax(4) = subplot(244);
-    plot(time_sim,omega_fl,'b','LineWidth',2)
+    plot(time_sim,omega_fl,'m','LineWidth',2)
     grid on
     ylabel('$\omega_{fl}$ [rad/s]')
     xlim([0 time_sim(end)])
     xlabel('Time (s)')
     pbaspect([1 1 1])
+    linkaxes([ax(1) ax(2) ax(3) ax(4)],'xy');
     % --- Tw_rr --- %
     ax(5) = subplot(245);
-    plot(time_sim,Tw_rr,'m','LineWidth',2)
+    plot(time_sim,Tw_rr,'b','LineWidth',2)
     grid on
     ylabel('$Tw_{rr}$ [Nm]')
     xlim([0 time_sim(end)])
@@ -423,7 +442,7 @@ function dataAnalysis(model_sim,vehicle_data,Ts)
     pbaspect([1 1 1])
     % --- Tw_fr --- %
     ax(7) = subplot(247);
-    plot(time_sim,Tw_fr,'m','LineWidth',2)
+    plot(time_sim,Tw_fr,'b','LineWidth',2)
     grid on
     ylabel('$Tw_{fr}$ [Nm]')
     xlim([0 time_sim(end)])
@@ -437,8 +456,8 @@ function dataAnalysis(model_sim,vehicle_data,Ts)
     xlim([0 time_sim(end)])
     xlabel('Time (s)')
     pbaspect([1 1 1])
+    linkaxes([ax(5) ax(6) ax(7) ax(8)],'xy');
     exportgraphics(gcf,sprintf(output_file,q,q,'g'),'ContentType','vector')
-    % linkaxes(ax,'x')
     clear ax
 
     % ---------------------------------
@@ -455,7 +474,7 @@ function dataAnalysis(model_sim,vehicle_data,Ts)
     pbaspect([1 1 1])
     % --- Fz_rl --- %
     ax(2) = subplot(242);
-    plot(time_sim,Fz_rl,'b','LineWidth',2)
+    plot(time_sim,Fz_rl,'m','LineWidth',2)
     grid on
     ylabel('$Fz_{rl}$ [N]')
     xlim([0 time_sim(end)])
@@ -471,15 +490,16 @@ function dataAnalysis(model_sim,vehicle_data,Ts)
     pbaspect([1 1 1])
     % --- Fz_fl --- %
     ax(4) = subplot(244);
-    plot(time_sim,Fz_fl,'b','LineWidth',2)
+    plot(time_sim,Fz_fl,'m','LineWidth',2)
     grid on
     ylabel('$Fz_{fl}$ [N]')
     xlim([0 time_sim(end)])
     xlabel('Time (s)')
     pbaspect([1 1 1])
+    linkaxes([ax(1) ax(2) ax(3) ax(4)],'xy');
     % --- Mz_rr --- %
     ax(5) = subplot(245);
-    plot(time_sim,Mz_rr,'m','LineWidth',2)
+    plot(time_sim,Mz_rr,'b','LineWidth',2)
     grid on
     ylabel('$Mz_{rr}$ [Nm]')
     xlim([0 time_sim(end)])
@@ -495,7 +515,7 @@ function dataAnalysis(model_sim,vehicle_data,Ts)
     pbaspect([1 1 1])
     % --- Mz_fr --- %
     ax(7) = subplot(247);
-    plot(time_sim,Mz_fr,'m','LineWidth',2)
+    plot(time_sim,Mz_fr,'b','LineWidth',2)
     grid on
     ylabel('$Mz_{fr}$ [Nm]')
     xlim([0 time_sim(end)])
@@ -509,7 +529,7 @@ function dataAnalysis(model_sim,vehicle_data,Ts)
     xlim([0 time_sim(end)])
     xlabel('Time (s)')
     pbaspect([1 1 1])
-    
+    linkaxes([ax(5) ax(6) ax(7) ax(8)],'xy'); 
     exportgraphics(gcf,sprintf(output_file,q,q,'h'),'ContentType','vector')
     % linkaxes(ax,'x')
     clear ax
@@ -536,7 +556,7 @@ function dataAnalysis(model_sim,vehicle_data,Ts)
     pbaspect([1 1 1])
     % --- gamma_fr --- %
     ax(3) = subplot(223);
-    plot(time_sim,gamma_fr,'b','LineWidth',2)
+    plot(time_sim,gamma_fr,'m','LineWidth',2)
     grid on
     ylabel('$\gamma_{fr}$ [deg]')
     xlim([0 time_sim(end)])
@@ -544,13 +564,13 @@ function dataAnalysis(model_sim,vehicle_data,Ts)
     pbaspect([1 1 1])
     % --- gamma_fl --- %
     ax(4) = subplot(224);
-    plot(time_sim,gamma_fl,'b','LineWidth',2)
+    plot(time_sim,gamma_fl,'m','LineWidth',2)
     grid on
     ylabel('$\gamma_{fl}$ [deg]')
     xlim([0 time_sim(end)])
     xlabel('Time (s)')
     pbaspect([1 1 1])
-    
+    linkaxes([ax(1) ax(2) ax(3) ax(4)],'xy');
     set(ax(1),'position',[.0 .55 .35 .35])
     set(ax(2),'position',[.0 .1 .35 .35])
     set(ax(3),'position',[.25 .55 .35 .35])

@@ -38,21 +38,22 @@ function graphing(model_sims,handling_datas,vehicle_data,Ts)
     Ax = dot_u(1:end,:) - Omega(2:end,:).*v(2:end,:);
     Ay = dot_v(1:end,:) + Omega(2:end,:).*u(2:end,:);
 
-    %%for saving 
+    %% for saving 
     output_file = '../graphs/q%d/ex-5%d%s.eps';
     output_files = '../graphs/q%d/ex-5%d%s%d.eps';
-    q = 1;
-    
+    q = 2;
+    speeds = {'50 $km/h$','80 $km/h$','100 $km/h$'};
+    deltas_fig = {'70$^\circ$','12$^\circ$','24$^\circ$'};
+    color = {'-b','-r','-g'};   
     % -------------------------------
     %% Plot vehicle paths
     % -------------------------------
-    speeds = {'50 $km/h$','80 $km/h$','100 $km/h$'};
-    color = {'-b','-r','-g'};
+
     figure('Name','Real Vehicle Path','NumberTitle','off'), clf
     set(gca,'FontSize',23)
 
     for ind = 1:length(handling_datas)
-        plot(x_CoM(:,ind),y_CoM(:,ind),color{ind},'LineWidth',2,'displayName',speeds{ind})
+        plot(x_CoM(:,ind),y_CoM(:,ind),color{ind},'LineWidth',2,'displayName',append(speeds{ind},' - ', deltas_fig{ind}))
         hold on
         N = length(time_sim(ind));
         for i = 1:floor(N/20):N
@@ -79,31 +80,35 @@ function graphing(model_sims,handling_datas,vehicle_data,Ts)
     % ---------------------------------
     %% handling diagrams
     % ---------------------------------
-    delta_t = deg2rad(desired_steer_atWheel);       
-    for ind = 1:length(handling_datas)
-        figure('Name','Handling Diagram','NumberTitle','on'), clf
-        hold on
-        plot([0;Ay(:,ind)],handling_datas{ind}.Y,'-b','LineWidth',2,'displayName','real')
-
-        plot([0;Ay(:,ind)],handling_datas{ind}.fitted_Y,'--r','LineWidth',2,'displayName','fitted')
-        set(gca,'fontsize',16);%, 'XAxisLocation', 'origin','YAxisLocation', 'origin');
-        grid on
-        xlabel('$a_y [m^2 / s]$')
-        ylabel('Y')
-        legend('location','northeast','fontSize', 26);
-        hold off
-        pbaspect([1 1 1])
-        set(gca,'FontSize',26)
-        exportgraphics(gcf,sprintf(output_files,q,q,'b',ind),'ContentType','vector')
-    end
+%     delta_t = deg2rad(desired_steer_atWheel);       
+%     for ind = 1:length(handling_datas)
+%         figure('Name','Handling Diagram','NumberTitle','on'), clf
+%         hold on
+%         plot([0;Ay(:,ind)],handling_datas{ind}.Y,'-b','LineWidth',2,'displayName','real')
+%         plot([0;Ay(:,ind)],handling_datas{ind}.fitted_Y,'--r','LineWidth',2,'displayName','fitted')
+%         set(gca,'fontsize',16);%, 'XAxisLocation', 'origin','YAxisLocation', 'origin');
+%         grid on
+%         xlabel('$a_y [m^2 / s]$')
+%         ylabel('Y')
+%         legend('location','northeast','fontSize', 26);
+%         hold off
+%         pbaspect([1 1 1])
+%         set(gca,'FontSize',26)
+%         exportgraphics(gcf,sprintf(output_files,q,q,'b',ind),'ContentType','vector')
+%     end
     
     % ---------------------------------
     %% handling diagrams [superimposed]
     % ---------------------------------   
-    figure('Name','Handling Diagram','NumberTitle','off'), clf
-    set(gca,'fontsize',16);%, 'XAxisLocation', 'origin','YAxisLocation', 'origin');
+    figure('Name','Fitted Handling Diagram','NumberTitle','off'), clf
+%     set(gca,'fontsize',16);%, 'XAxisLocation', 'origin','YAxisLocation', 'origin');
     for ind = 1:length(handling_datas)
-        plot([0;Ay(:,ind)],handling_datas{ind}.fitted_Y,color{ind},'LineWidth',2,'displayName',speeds{ind})
+        if ind == 1
+            sup = 0;
+        else
+            sup =0;
+        end
+        plot([0;Ay(:,ind)]*(4+sup-ind),handling_datas{ind}.fitted_Y*(4+sup-ind),color{ind},'LineWidth',2,'displayName',append(speeds{ind},' - ', deltas_fig{ind}));
         hold on
     end
     grid on
@@ -111,7 +116,10 @@ function graphing(model_sims,handling_datas,vehicle_data,Ts)
     ylabel('Y')
     hold off
     legend('location','northeast','fontsize',23);
-    set(gca,'FontSize',26)
+    set(gca,'FontSize',26,'xtick',([-50 -40 -30 -20 -10 0 10 20 30 40 50]));
+    ax = gca();
+%     ax.YAxis.Exponent=-1;
+    ax.YRuler.Exponent = -3;
     pbaspect([1 1 1])
     exportgraphics(gcf,sprintf(output_file,q,q,'d'),'ContentType','vector')
     %% Omega vs delta
@@ -131,104 +139,111 @@ function graphing(model_sims,handling_datas,vehicle_data,Ts)
 %         clear ax
 %     end
     %% for triple graph
-
-    figure('Name','Tripple Graph','NumberTitle','off'), clf
-    time_step = 0:0.00100:1000;
-    % -- 50km/h
-    ax(1) = subplot(231);
-    plot([0;Ay(:,1)],handling_datas{1}.Y,'-b','LineWidth',2,'displayName','real')
-    hold on
-    plot([0;Ay(:,1)],handling_datas{1}.fitted_Y,'--r','LineWidth',1,'displayName','fitted')
-    hold off
-    title('50 km\h');
-    grid on
-    xlabel('$a_y [m^2 / s]$')
-    ylabel('Y')
-    legend('location','northeast','fontSize', 20);
-    pbaspect([1 1 1])  
-
-    % -- 80km/h
-    ax(2) = subplot(232);
-    plot([0;Ay(:,2)],handling_datas{2}.Y,'-b','LineWidth',2,'displayName','real')
-    hold on
-    plot([0;Ay(:,2)],handling_datas{2}.fitted_Y,'--r','LineWidth',1,'displayName','fitted')
-    hold off
-    title('80 km\h');
-    grid on
-    xlabel('$a_y [m^2 / s]$')
-    ylabel('Y')
-    legend('location','northeast','fontSize', 20);
-    pbaspect([1 1 1])  
-    % -- 100km/h
-    ax(3) = subplot(233);
-    plot([0;Ay(:,3)],handling_datas{3}.Y,'-b','LineWidth',2,'displayName','real')
-    hold on
-    plot([0;Ay(:,3)],handling_datas{3}.fitted_Y,'--r','LineWidth',1,'displayName','fitted')
-    hold off
-    title('100 km\h');
-    grid on
-    xlabel('$a_y [m^2 / s]$')
-    ylabel('Y')
-    legend('location','northeast','fontSize', 20);
-    pbaspect([1 1 1])  
-    ylim([-6e-3 6e-3])
-    xlim([-10 10])
-    set([ax(1),ax(2),ax(3)],'XTick',-10:4:10)
-    linkaxes([ax(1),ax(2),ax(3)],'xy')
-    hold off
-  
-    % -- 50km/h
-    ax(4) = subplot(234);
-    plot(time_step,Omega(:,1),'-b','LineWidth',2,'displayName','$\Omega$')
-    hold on
-    plot(time_step,delta_D_r(:,1),'-r','LineWidth',2,'displayName','$\delta_{D}$')
-    hold off
-    title('50 km\h');
-    grid on
-    xlabel('Time [s]')
-    ylabel('rad/s')
-    ax(4).YAxis.Exponent=-1;
-    legend('location','northeast','fontSize', 20);
-    pbaspect([1 1 1])  
-
-    % -- 80km/h
-    ax(5) = subplot(235);
-    plot(time_step,Omega(:,2),'-b','LineWidth',2,'displayName','$\Omega$')
-    hold on
-    plot(time_step,delta_D_r(:,2),'-r','LineWidth',2,'displayName','$\delta_{D}$')
-    hold off
-    title('80 km\h');
-    grid on
-    xlabel('Time [s]')
-    ylabel('rad/s')
-    ax(5).YAxis.Exponent=-1;
-    legend('location','northeast','fontSize', 20);
-    pbaspect([1 1 1])  
-
-    % -- 100km/h
-    ax(6) = subplot(236);
-    plot(time_step,Omega(:,3),'-b','LineWidth',2,'displayName','$\Omega$')
-    hold on
-    plot(time_step,delta_D_r(:,3),'-r','LineWidth',2,'displayName','$\delta_{D}$')
-    hold off
-    title('100 km\h');
-    grid on
-    xlabel('Time [s]')
-    ylabel('rad/s')
-    legend('location','northeast','fontSize', 20);
-    pbaspect([1 1 1]) 
-    ax(6).YAxis.Exponent=-1;
-    set([ax(4),ax(5),ax(6)],'XTick',0:200:1000)
-    set(ax,'FontSize',15)
-    linkaxes([ax(4),ax(5),ax(6)],'xy')    
-
-    set(ax(1),'position',[.0 .55 .35 .35])
-    set(ax(2),'position',[.2 .55 .35 .35])
-    set(ax(3),'position',[0.4 .55 .35 .35])
-    set(ax(4),'position',[.0 .1 .35 .35])
-    set(ax(5),'position',[.2 .1 .35 .35])
-    set(ax(6),'position',[.4 .1 .35 .35])
-    exportgraphics(gcf,sprintf(output_file,q,q,'c'),'ContentType','vector')
-    clear ax
+% 
+%     figure('Name','Tripple Graph','NumberTitle','off'), clf
+%     time_step = 0:0.00100:1000;
+%     % -- 50km/h
+%     ax(1) = subplot(231);
+%     plot([0;Ay(:,1)],handling_datas{1}.Y,'-b','LineWidth',2,'displayName','real')
+%     hold on
+%     plot([0;Ay(:,1)],handling_datas{1}.fitted_Y,'--r','LineWidth',1,'displayName','fitted')
+%     hold off
+%     title('50 km\h');
+%     grid on
+%     xlabel('$a_y [m^2 / s]$')
+%     ylabel('Y')
+%     legend('location','northeast','fontSize', 20);
+%     pbaspect([1 1 1])  
+% 
+%     % -- 80km/h
+%     ax(2) = subplot(232);
+%     plot([0;Ay(:,2)],handling_datas{2}.Y,'-b','LineWidth',2,'displayName','real')
+%     hold on
+%     plot([0;Ay(:,2)],handling_datas{2}.fitted_Y,'--r','LineWidth',1,'displayName','fitted')
+%     hold off
+%     title('80 km\h');
+%     grid on
+%     xlabel('$a_y [m^2 / s]$')
+%     ylabel('Y')
+%     legend('location','northeast','fontSize', 20);
+%     pbaspect([1 1 1])  
+%     % -- 100km/h
+%     ax(3) = subplot(233);
+%     plot([0;Ay(:,3)],handling_datas{3}.Y,'-b','LineWidth',2,'displayName','real')
+%     hold on
+%     plot([0;Ay(:,3)],handling_datas{3}.fitted_Y,'--r','LineWidth',1,'displayName','fitted')
+%     hold off
+%     title('100 km\h');
+%     grid on
+%     xlabel('$a_y [m^2 / s]$')
+%     ylabel('Y')
+%     legend('location','northeast','fontSize', 20);
+%     pbaspect([1 1 1])  
+%     ylim([-6e-3 6e-3])
+%     xlim([-10 10])
+%     set([ax(1),ax(2),ax(3)],'XTick',-10:4:10)
+%     linkaxes([ax(1),ax(2),ax(3)],'xy')
+%     hold off
+%   
+%     % -- 50km/h
+%     ax(4) = subplot(234);
+%     plot(time_step,Omega(:,1),'-b','LineWidth',2,'displayName','$\Omega$')
+%     hold on
+%     plot(time_step,delta_D_r(:,1),'-r','LineWidth',2,'displayName','$\delta_{D}$')
+%     hold off
+%     title('50 km\h');
+%     grid on
+%     xlabel('Time [s]')
+%     ylabel('rad/s')
+%     ax(4).YAxis.Exponent=-1;
+%     legend('location','northeast','fontSize', 20);
+%     pbaspect([1 1 1])  
+% 
+%     % -- 80km/h
+%     ax(5) = subplot(235);
+%     plot(time_step,Omega(:,2),'-b','LineWidth',2,'displayName','$\Omega$')
+%     hold on
+%     plot(time_step,delta_D_r(:,2),'-r','LineWidth',2,'displayName','$\delta_{D}$')
+%     hold off
+%     title('80 km\h');
+%     grid on
+%     xlabel('Time [s]')
+%     ylabel('rad/s')
+%     ax(5).YAxis.Exponent=-1;
+%     legend('location','northeast','fontSize', 20);
+%     pbaspect([1 1 1])  
+% 
+%     % -- 100km/h
+%     ax(6) = subplot(236);
+%     plot(time_step,Omega(:,3),'-b','LineWidth',2,'displayName','$\Omega$')
+%     hold on
+%     plot(time_step,delta_D_r(:,3),'-r','LineWidth',2,'displayName','$\delta_{D}$')
+%     hold off
+%     title('100 km\h');
+%     grid on
+%     xlabel('Time [s]')
+%     ylabel('rad/s')
+%     legend('location','northeast','fontSize', 20);
+%     pbaspect([1 1 1]) 
+%     ax(6).YAxis.Exponent=-1;
+%     set([ax(4),ax(5),ax(6)],'XTick',0:200:1000)
+%     set(ax,'FontSize',15)
+%     linkaxes([ax(4),ax(5),ax(6)],'xy')    
+% 
+%     set(ax(1),'position',[.0 .55 .35 .35])
+%     set(ax(2),'position',[.2 .55 .35 .35])
+%     set(ax(3),'position',[0.4 .55 .35 .35])
+%     set(ax(4),'position',[.0 .1 .35 .35])
+%     set(ax(5),'position',[.2 .1 .35 .35])
+%     set(ax(6),'position',[.4 .1 .35 .35])
+%     exportgraphics(gcf,sprintf(output_file,q,q,'c'),'ContentType','vector')
+%     clear ax
+%     
+    %% coeffs print out 
+    format shortG
+    for ind = 1:length(handling_datas)
+        fprintf("run# %d coefficients", ind);
+        disp(handling_datas{ind}.coeffs);
+    end
 end
     

@@ -693,33 +693,33 @@ function dataAnalysis(model_sim,vehicle_data,Ts)
 %     grid on
 %     pbaspect([1 1 1])
 %     exportgraphics(gcf,sprintf(output_file,q,q,'l'),'ContentType','vector')
-    % -------------------------------
-    %% Plot vehicle path
-    % -------------------------------
-    N = length(time_sim);
-    figure('Name','Real Vehicle Path','NumberTitle','off'), clf
-    set(gca,'fontsize',16)
-    hold on
-    axis equal
-    xlabel('x-coord [m]')
-    ylabel('y-coord [m]')
-    title('Real Vehicle Path','FontSize',18)
-    plot(x_CoM,y_CoM,'Color',color('gold'),'LineWidth',2)
-    for i = 1:floor(N/20):N
-        rot_mat = [cos(psi(i)) -sin(psi(i)) ; sin(psi(i)) cos(psi(i))];
-        pos_rr = rot_mat*[-Lr -Wr/2]';
-        pos_rl = rot_mat*[-Lr +Wr/2]';
-        pos_fr = rot_mat*[+Lf -Wf/2]';
-        pos_fl = rot_mat*[+Lf +Wf/2]';
-        pos = [pos_rr pos_rl pos_fl pos_fr];
-        p = patch(x_CoM(i) + pos(1,:),y_CoM(i) + pos(2,:),'blue');
-        quiver(x_CoM(i), y_CoM(i), u(i)*cos(psi(i)), u(i)*sin(psi(i)), 'color', [1,0,0]);
-        quiver(x_CoM(i), y_CoM(i), -v(i)*sin(psi(i)), v(i)*cos(psi(i)), 'color', [0.23,0.37,0.17]);
-    end
-    grid on
-    hold off
-    pbaspect([1 1 1])
-    exportgraphics(gcf,sprintf(output_file,q,q,'m'),'ContentType','vector')
+%     % -------------------------------
+%     %% Plot vehicle path
+%     % -------------------------------
+%     N = length(time_sim);
+%     figure('Name','Real Vehicle Path','NumberTitle','off'), clf
+%     set(gca,'fontsize',16)
+%     hold on
+%     axis equal
+%     xlabel('x-coord [m]')
+%     ylabel('y-coord [m]')
+%     title('Real Vehicle Path','FontSize',18)
+%     plot(x_CoM,y_CoM,'Color',color('gold'),'LineWidth',2)
+%     for i = 1:floor(N/20):N
+%         rot_mat = [cos(psi(i)) -sin(psi(i)) ; sin(psi(i)) cos(psi(i))];
+%         pos_rr = rot_mat*[-Lr -Wr/2]';
+%         pos_rl = rot_mat*[-Lr +Wr/2]';
+%         pos_fr = rot_mat*[+Lf -Wf/2]';
+%         pos_fl = rot_mat*[+Lf +Wf/2]';
+%         pos = [pos_rr pos_rl pos_fl pos_fr];
+%         p = patch(x_CoM(i) + pos(1,:),y_CoM(i) + pos(2,:),'blue');
+%         quiver(x_CoM(i), y_CoM(i), u(i)*cos(psi(i)), u(i)*sin(psi(i)), 'color', [1,0,0]);
+%         quiver(x_CoM(i), y_CoM(i), -v(i)*sin(psi(i)), v(i)*cos(psi(i)), 'color', [0.23,0.37,0.17]);
+%     end
+%     grid on
+%     hold off
+%     pbaspect([1 1 1])
+%     exportgraphics(gcf,sprintf(output_file,q,q,'m'),'ContentType','vector')
     %% ----------------------------------------------------------------
     % Handling diagram fitting
     % ----------------------------------------------------------------

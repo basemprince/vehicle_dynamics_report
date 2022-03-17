@@ -10,7 +10,7 @@
         \label{llv}
         \end{figure}
         
-From Figure \ref{llv}, the magnitude of the longitudinal velocity is higher than the lateral velocity. This matches what was expected as the vehicle mainly moves longitudinally and only laterally while slipping.
+From Figure \ref{llv}, the magnitude of the longitudinal velocity $u$ is higher than the lateral velocity $\upsilon$. This matches what was expected as the vehicle mainly moves longitudinally and only laterally while slipping. $\upsilon$ also appears to have larger variations.
 
 \textbf{Q. Evaluate the longitudinal speed using the Hall-effect wheel speed sensors and compare the data with the INS data}
 
@@ -27,22 +27,27 @@ The longitudinal speed for the vehicle was calculated using the hall effect sens
     \upsilon_{wheel} = \frac{c}{\overline{T}}
 \end{equation}
 
-The INS velocity is sometimes bigger than the hall effect calculated speeds, especially during braking [partial wheel lock]. There is no obvious difference between them (Figure \ref{lsvt}).
-
-\textbf{Q. Evaluate the lateral acceleration using the relation with the yaw-rate and the longitudinal speed.}
+The INS velocity is sometimes bigger than the hall effect calculated speeds, especially during braking [partial wheel lock]. There is no obvious difference between them during acceleration, which mean no significant wheel spin has been detected (Figure \ref{lsvt}).
+\newpage
+\textbf{Q. Evaluate the lateral acceleration using the relation with the $\Omega$ and $u$.}
 
         \begin{figure}[ht]
-        \includegraphics[width=10cm]{ex3/ex-34.eps}
+        \includegraphics[width=9cm]{ex3/ex-34.eps}
         \centering
         \caption{filtered INS vs calculated $a_{y}$}
         \label{fila}
         \end{figure}
 
-The lateral acceleration was calculated by multiplying the yaw rate by the longitudinal velocity, and is shown in Figure \ref{fila}. 
+The lateral acceleration was calculated by multiplying the yaw rate by the longitudinal velocity, and is shown in Figure \ref{fila}. This means that the following assumptions were true:
+
+\begin{enumerate}
+  \item The vehicle has stayed in steady state where $\vdot$ is small and $\ay \simeq \Omega u$
+  \item the road banking was negligible
+\end{enumerate}
 
 \textbf{Q. Comparing the longitudinal acceleration measured by INS with the one obtained by derivation of the longitudinal speed measured from the Hall sensors.}
 
-The derived acceleration [shown in Figure \ref{ilavd}] is quite noisier than the one provided by INS. The derived acceleration was filtered using a moving mean. This resulted in a far better matching acceleration compared to the INS data.
+The derived acceleration $\ax$ [shown in Figure \ref{ilavd}] is quite noisier than the one provided by INS. The derived acceleration was filtered using a moving mean. This resulted in a far better matching acceleration compared to the INS data.
 
         \begin{figure}[ht]
         \includegraphics[width=10cm]{ex3/ex-35.eps}
@@ -53,7 +58,7 @@ The derived acceleration [shown in Figure \ref{ilavd}] is quite noisier than the
 
 \textbf{Q. Evaluate the side slip angle.}
 
-In Figure \ref{iavtc}, the side slip angle was calculated using the longitudinal and lateral speed. derived acceleration is quite a lot noisier than the one provided by the INS.
+In Figure \ref{iavtc}, the side slip angle $\beta$ was calculated using the equation $\beta = \arctan({\upsilon/u})$. It appears that both the calculated and the INS provided $\beta$ are similar, meaning that the INS is using the same formula. When $u \simeq 0$ the calculation becomes very noisy. The INS might be employing sensor fusion to suppress that noise. $\beta \in [-3,5]$ which is considered small.
 
         \begin{figure}[ht]
         \includegraphics[width=10cm]{ex3/ex-36.eps}

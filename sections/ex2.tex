@@ -4,7 +4,7 @@
 \textbf{Q. Plot the raw data in different graphs, specifically focusing on $\kappa$, $\alpha$, $\gamma$, $\fz$\ and pressure $P$. Comment on what you see. What is, according to you, the main target of these tests?}
 
         \begin{figure}[ht]
-        \includegraphics[width=13cm]{ex2/ex-21.eps}
+        \includegraphics[width=\linewidth]{ex2/ex-21.eps}
         \centering
         \caption{raw data}
         \label{rd}
@@ -15,7 +15,7 @@ From the five plotted variables in Figure \ref{rd}, it appears that the longitud
 \textbf{Q. Focus on the data with $\alpha$ =0 and $\gamma$ =0, and plot the curves $\fx$\ vs $\kappa$ for each of the 4 vertical loads $\fz$\ used in the experiments. Plot the 4 curves on the same graph, with different colors. Comment on what you see.}
 
         \begin{figure}[ht]
-        \includegraphics[width=9cm]{ex2/ex-22.eps}
+        \includegraphics[width=13cm]{ex2/ex-22.eps}
         \centering
         \caption{$\kappa$ vs $\fx$\ based on vertical force}
         \label{lsvlf}
@@ -27,7 +27,7 @@ Figure \ref{lsvlf} suggests that the Longitudinal Force $\fx$\ increases with th
 
 The Longitudinal Force $\fx$\ in Figure \ref{lsvlfv} shows an inverse relationship with the side slip angle. 
         \begin{figure}[ht]
-        \includegraphics[width=9cm]{ex2/ex-23.eps}
+        \includegraphics[width=11.2cm]{ex2/ex-23.eps}
         \centering
         \caption{$\kappa$ vs $\fx$\ at vertical force = 670 based on slip angle}
         \label{lsvlfv}
@@ -38,7 +38,7 @@ The Longitudinal Force $\fx$\ in Figure \ref{lsvlfv} shows an inverse relationsh
 \textbf{Q. First consider the data with $\fz$\ = $\fzz$\ =890N, $\gamma$ =0 and $\alpha$ =0, and fit the coefficients X1 = \{$\pcxo$, $\pdxo$, $\pexo$ , $\pexf$, $\pkxo$, $\phxo$, $\pvxo$\}. Plot the fitted curve $\fx$\ vs $\kappa$ that you obtained in these nominal conditions, together with the raw data.}
 
         \begin{figure}[ht]
-        \includegraphics[width=9cm]{ex2/ex-24.eps}
+        \includegraphics[width=11.2cm]{ex2/ex-24.eps}
         \centering
         \caption{Fitted $\fxz$\ after optimizing first 7 parameters compared to test data vs $\kappa$}
         \label{faopt}
@@ -47,10 +47,10 @@ The Longitudinal Force $\fx$\ in Figure \ref{lsvlfv} shows an inverse relationsh
 In Figure \ref{faopt}, the data was filtered based on the following criteria: $\fzz$\ = 890, $\alpha$\ = 0, $\gamma$\ = 0. The first 7 coefficients were optimized using the $fmincon$ function in Matlab. I started with a random coefficients initial guess vector. The initial guess vector has proven to be quite important as running the code multiple times showed a curve that did not fit the data at all, which means the optimizer was stuck at a local minima. However, most of the time the initial guess gave a very good fit that converged to the correct global minima. Later on I optimized the initial guesses to give consistent good fitting results based on trial and error.
 
 
-\textbf{Q. Now consider the data with the 4 different values of $\fz$, but still $\gamma$ = 0 (and $\alpha$ = 0). This enables the fitting of the parameters: X2 =\{$\pdxt$,$\pext$,$\pextt$,$\phxt$,$\pkxt$,$\pkxtt$,$\pvxt$\}. Plot the fitted and raw curves $\fxz$\ vs $\kappa$ for the 4 values of $\fz$\ and comment the results.}
+\textbf{Q. Consider data with the 4 different values of $\fz$, but still $\gamma$ = 0 (and $\alpha$ = 0). This enables the fitting of the parameters: X2 =\{$\pdxt$, $\pext$, $\pextt$, $\phxt$, $\pkxt$, $\pkxtt$, $\pvxt$\}. Plot fitted and raw curves $\fxz$\ vs $\kappa$ for the 4 values of $\fz$\ and comment the results.}
 
         \begin{figure}[ht]
-        \includegraphics[width=9cm]{ex2/ex-25.eps}
+        \includegraphics[width=\linewidth]{ex2/ex-25.eps}
         \centering
         \caption{Fitted $\fx$\ vs test data after second fitting for each $\fz$}
         \label{ffxtd}
@@ -58,12 +58,12 @@ In Figure \ref{faopt}, the data was filtered based on the following criteria: $\
 
 The real $\fx$\ data for each separate $\fz$\ are plotted against the output of the second fitting in Figure \ref{ffxtd}. The fitted data appear to match the test data quite well. This means the fitting results are adequate to approximate the longitudinal force $\fx$ for vertical forces $\fz$ that are different from the originally tested one.
 
-
+\newpage
 \textbf{Q. Now consider the data with the 3 different values of $\gamma$, but with $\fz$\ = $\fzz$\ (and 
 $\alpha$ = 0). Plot the fitted and raw curves $\fxz$\ vs $\kappa$ for the 3 values of $\gamma$ and comment the results.}
 
         \begin{figure}[ht]
-        \includegraphics[width=9cm]{ex2/ex-26.eps}
+        \includegraphics[width=\linewidth]{ex2/ex-26.eps}
         \centering
         \caption{Fitted $\fx$\ vs test data after third fitting for each $\gamma$}
         \label{ffvtdg}

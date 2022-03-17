@@ -38,7 +38,16 @@ During the vehicle's acceleration to maximum speed [between 0 and 5 seconds] all
         \label{41h}
         \end{figure}
         
-The aerodynamics load $\fa$\ increases as speed increases. As shown in Figure \ref{41h}, the vertical force $\fz$ increases across all tires because it relies on $\fa$. They later reach steady state once the car stops accelerating. the rear tires show a peak in $\fz$ due to the sharp drop in acceleration $\ay$ towards nearing maximum speed.
+The aerodynamics load $\fa$\ increases as speed increases. As shown in Figure \ref{41h}, the vertical force $\fz$ increases across all tires because it relies on $\fa$. The vertical loads are calculated using Equation \ref{eq:4.1}:
+
+\begin{equation}\label{eq:4.1}
+\begin{aligned}
+    \fzr = mg \frac{\lf}{L} + \fazr + \fx \frac{\hg}{L} - \frac{\iyz}{L} \dot{\Omega} \\
+    \fzf = mg \frac{\lr}{L} + \fazf + \fx \frac{\hg}{L} - \frac{\iyz}{L} \dot{\Omega}
+\end{aligned}
+\end{equation}
+
+They later reach steady state once the car stops accelerating. the rear tires show a peak in $\fz$ due to the drop in acceleration $\ay$ towards nearing maximum speed, which decreased the lateral load transfer on the rear tires.
         
         \begin{figure}[ht]
         \includegraphics[width=0.85\linewidth]{ex4/q1/ex-41d.eps}
@@ -49,7 +58,7 @@ The aerodynamics load $\fa$\ increases as speed increases. As shown in Figure \r
 
 As previously mentioned, the vehicle has no steering input, which is why the side slip angle $\alpha$ for all tires are zero [Figure \ref{41d}]. Furthermore, the magnitude of the lateral forces on the right tires are equal [and similarly the left tires]. The right tires' lateral forces are opposite in direction compared to the left tires and equal in magnitude, thus making them cancel out keeping the vehicle moving straight. $\fy$\ is smaller than $\fx$\ for all the tires. The self aligning torque $\mz$ profiles previously shown in Figure \ref{41h} resemble the lateral forces profiles for each tire as they are trying to counter their effect on the steering.
 
-During acceleration, the lateral forces $\fy$ across all tires increase because the vertical forces $\fz$ increased. The lateral forces relies on the vertical forces, which is why both the $\fy$ and $\fz$ profiles match for front and rear tires.
+During acceleration, the lateral forces $\fy$ across all tires increase because the vertical forces $\fz$ increased. The lateral forces relies on the vertical forces in the pacejka calculations, which is why both the $\fy$ and $\fz$ profiles match for front and rear tires.
 
 % \vspace{-1em}
 \newpage
@@ -85,7 +94,7 @@ This maneuver also doesn't have steering input, which is why the graphs in Figur
         \label{42h}
         \end{figure}
 
-Figure \ref{42h} shows the vertical force $\fz$ has decreased in the rear tires while increasing in the front. This is attributed to the longitudinal load transfer to the front due to the braking. The $\fz$ forces on all tires showed a peak around 0.27 seconds due to the rear wheels locking.
+Figure \ref{42h} shows the vertical force $\fz$ has decreased in the rear tires while increasing in the front. This is attributed to the longitudinal load transfer to the front because of the braking. The $\fz$ forces on all tires showed a peak around 0.27 seconds due to the rear wheels locking.
 
 No steering input means no side slip angle $\alpha$ for all tires [Figure \ref{42d}]. And similar to maneuver \#1, the right tires' lateral forces are opposite in direction compared to the left tires and equal in magnitude. The self aligning torque $\mz$ profiles in Figure \ref{42h} for each tire are trying to counter the $\fy$'s effect on the steering. $\fy$ showed the same trend as $\fz$, increasing in the front while decreasing in the rear tires.
 
@@ -122,13 +131,13 @@ Figure \ref{43b} shows the motion graphs of the third maneuver. The longitudinal
 
 The angular velocity $\omega$ are different for different for each wheel as the outer [right] tires would need to rotate faster than the inner [left] tires [Figure \ref{43g}]. The torque experienced by the rear tires are equal to each other, while the front ones are zero.
 
-The longitudinal slip $\kappa$ relies on $\omega$ and can be approximately calculated using Equation \ref{eq:4.1}:
+The longitudinal slip $\kappa$ relies on $\omega$ for each wheel and can be calculated using Equation \ref{eq:4.3}:
 
-\begin{equation}\label{eq:4.1} % add * after equation for unnumbered equations
-    \kappa_{ij} \simeq \frac{\omega_{ij} R_{ij} - u}{u} \quad i \in \{f,r\} \quad j \in \{r,l\}
+\begin{equation}\label{eq:4.3} % add * after equation for unnumbered equations
+    \kappa_{ij} = \frac{\omega_{ij} R_{ij} - \upsilon_{cxij} }{\upsilon_{cxij}} \quad i \in \{f,r\} \quad j \in \{r,l\}
 \end{equation}
 
-Figure \ref{43f} shows $\kappa$ and $\fx$. As there was no torque on the front tires, $\kappa$ and $\fx$ on the front tires were small. $\kappa$ for the rear tires are different because they are rotating at different speeds. However, both rear tires experienced the same $\fx$.
+Figure \ref{43f} shows $\kappa$ and $\fx$. As there was no torque on the front tires, $\kappa$ and $\fx$ on the front tires were small. $\kappa$ for the rear tires are different because they are rotating at different speeds. However, both rear tires still experienced the same $\fx$.
 
         \begin{figure}[ht]
         \includegraphics[width=0.88\linewidth]{ex4/q3/ex-43f.eps}

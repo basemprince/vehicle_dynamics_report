@@ -120,7 +120,7 @@ function dataAnalysis(model_sim,vehicle_data,Ts)
     %% PLOTS
     % ---------------------------------
     output_file = '../graphs/q%d/ex-4%d%s.eps';
-    q = 3;              
+    q = 2;              
 
     % ---------------------------------
     %% Plot vehicle inputs

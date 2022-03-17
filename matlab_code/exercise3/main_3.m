@@ -14,12 +14,12 @@ load('20130222_01_02_03_grandsport.mat');
 %% fig1
 figure(1);
 
-plot(insData.vxCG.time,insData.vxCG.value,'-b','markerSize',5,'lineWidth',2,'DisplayName','longitudinal [$v_{x}$]');
+plot(insData.vxCG.time,insData.vxCG.value,'-b','markerSize',5,'lineWidth',2,'DisplayName','longitudinal [$u$]');
 hold on
-plot(insData.vyCG.time,insData.vyCG.value,'-r','lineWidth',2,'DisplayName','lateral [$v_{y}]$');
+plot(insData.vyCG.time,insData.vyCG.value,'-r','lineWidth',2,'DisplayName','lateral [$v]$');
 legend('Location','northeast','FontSize',20);
 xlabel('Time (s)')
-ylabel('Veclocity [$v$] $(^{m}/_{s})$');
+ylabel('Veclocity $(^{m}/_{s})$');
 pbaspect([1 1 1]);
 % xlim([0 700]);
 grid on

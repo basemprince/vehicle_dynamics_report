@@ -9,6 +9,13 @@
 \usepackage[english]{babel}
 \usepackage{csquotes}
 \usepackage{subfiles}
+\usepackage[table,xcdraw]{xcolor}
+\usepackage{siunitx}
+\usepackage[table]{xcolor}
+
+\sisetup{scientific-notation=true,round-mode=places,round-precision=1}
+
+
 
 \pagestyle{fancy}
 \renewcommand{\chaptermark}[1]{\markboth{#1}{#1}}
@@ -49,7 +56,8 @@ sections/ex1,
 sections/ex2,
 sections/ex3,
 sections/ex4,
-sections/ex5
+sections/ex5,
+sections/ex6
 }
 \begin{document}
 \begin{titlepage}
@@ -80,11 +88,12 @@ sections/ex5
 
 \tableofcontents
 
-% \include{sections/ex1}
-% \include{sections/ex2}
-% \include{sections/ex3}
-% \include{sections/ex4}
+\include{sections/ex1}
+\include{sections/ex2}
+\include{sections/ex3}
+\include{sections/ex4}
 \include{sections/ex5}
+\include{sections/ex6}
 
 % \printbibliography %
 

@@ -97,13 +97,12 @@ run\# 3: [0.0007569, \space7.6441e-08, -0.0089127, -8.4754e-08]
 The results of all the coefficients for the fittings for the three runs are shown above. They are certainly not constant across the runs because they fit different curves. However, some are quite close, especially runs \# 2 and 3. This could be attributed to the similarity in the linear sections of the three curves as shown in Figure \ref{52d}.
 
         \begin{figure}[ht]
-        \includegraphics[width=0.7\linewidth]{ex5/q2/ex-52d.eps}
+        \includegraphics[width=0.5\linewidth]{ex5/q2/ex-52d.eps}
         \centering
         \caption{Fitted handling curves comparison with different $\deltd$}
         \label{52d}
         \end{figure}
 
-\newpage   
 \section{Exercise 2 - Constant Steer Maneuvers}
 \textbf{Q. Carry out a constant steering maneuver, with these data: \vspace{-1em}
 \begin{enumerate}
@@ -120,12 +119,6 @@ The results of all the coefficients for the fittings for the three runs are show
 
 The simulations were run for 1000 seconds. Figure \ref{53b1} shows the motion graphs for maneuver \#1 [only plotting the first 10 seconds]. The speed ramped up from 20 to 40 km/h within the first 2 seconds using the low level PID controller to manage the pedal.
 
-        \begin{figure}[ht]
-        \includegraphics[width=0.37\linewidth]{ex5/q3/ex-53e1.eps}
-        \centering
-        \caption{Filtered handling curve for constant steer maneuver \#1}
-        \label{53e1}
-        \end{figure}
 
 The vehicle must be in steady state conditions in order to plot the handling curve. The data was filtered by monitoring the change in $u$ using Equation \ref{eq:5.3a}. The data used in plotting begins at the (steady state start index) till the end [Figure \ref{53e1}].
 
@@ -133,7 +126,14 @@ The vehicle must be in steady state conditions in order to plot the handling cur
 \mbox{steady state start index} = \mbox{find ( diff ( $u$ ) )} >= 0.003 m/s
 \end{equation}
 
-Even though the filtering has significantly improved the result of the graph, it still is not quite accurate enough. This might be due to the very low lateral acceleration $\ay$ that the vehicle experienced during this maneuver. Nonetheless, the results still suggests that the vehicle has an over-steering behaviour.
+        \begin{figure}[ht]
+        \includegraphics[width=0.5\linewidth]{ex5/q3/ex-53e1.eps}
+        \centering
+        \caption{Filtered handling curve for constant steer maneuver \#1}
+        \label{53e1}
+        \end{figure}
+        
+Even though the filtering has significantly improved the result of the graph, it still is not quite accurate enough. This might be due to the very low lateral acceleration $\ay$ that the vehicle experienced during this maneuver. Nonetheless, the results still suggests that the vehicle has an over-steering behaviour. \newpage
 
 The path result of the maneuver plotted in Figure \ref{53m1} shows that the curve was about 80 meters in radius and the vehicle ended almost at the start point. This indicates that the vehicle experienced a negligible amount of over-steer as it was not pushed hard enough to cause any front or rear tire slip. 
         
@@ -166,9 +166,59 @@ The filtered handling curve for maneuver \#2 in Figure \ref{53e2} is significant
 
 The radius of the path with the second maneuver plotted in Figure \ref{53m2} has a much smaller radius [40 meters]. The vehicle has certainly experienced over-steer because the curvature decreased towards the end of the run. 
 
-        \begin{figure}[ht!]
+        \begin{figure}[ht]
         \includegraphics[width=0.5\linewidth]{ex5/q3/ex-53m2.eps}
         \centering
         \caption{Path of the vehicle for constant steer maneuver \#2}
         \label{53m2}
         \end{figure}
+
+
+
+In conclusion, the steering gradient $\kus$ is a function of multiple variables including ($\ay, u, \ax$). To predict handling behaviour more accurately, the vehicle was tested from 20 to 100 km/h using the sine steer maneuver with a $\deltd$ = $10^\circ$. The results are in Table \ref{tab:6.1} and Figure \ref{53d1}.
+
+\begin{table}[ht]
+    \centering
+    \begin{tabular}{c | c}
+      \textbf{$u$ [km/h]}  & \textbf{$\kus$} \\ \hline
+      20 &  \num{-9.96E-05}    \\\hline
+      30 &  \num{-0.000296518} \\\hline
+      40 &  \num{-0.00059611}  \\\hline
+      50 &  \num{-0.001027394} \\\hline
+      60 &  \num{-0.001629399} \\\hline
+      70 &  \num{-0.002448684} \\\hline
+      80 &  \num{-0.003542939} \\\hline
+      90 &  \num{-0.00498508}  \\\hline
+      100 &  \num{-0.006867669}\\
+    \end{tabular}
+    \caption{Vehicle's $\kus$ for tested speeds with sine steer [$\deltd$ = $10^\circ$]}
+    \label{tab:5.1}
+\end{table}
+
+        \begin{figure}[ht!]
+        \includegraphics[width=0.47\linewidth]{ex5/q3/ex-53d1.eps}
+        \centering
+        \caption{$\kus$ results based on $u$ with sine steer [$\deltd$ = $10^\circ$]}
+        \label{53d1}
+        \end{figure}
+        
+\begin{table}[ht]
+    \centering
+    \begin{tabular}{p{0.5\linewidth} | p{0.5\linewidth}}
+      \textbf{Sine steer}  & \textbf{Constant Steer} \\ \hline
+      More difficult to maintain steady state as the steering angle is changing constantly &
+      Easier to maintain steady state considering that $u$ is easier to regulate \\ \hline
+      
+      Needs a robot to perform &
+      Easily performed by a human driver \\ \hline
+      
+      Perform left and right turns on the same run &
+      Only perform either left or right turns per run \\ \hline
+
+      Requires a larger area to perform \newline [going straight and steering left to right] &
+      A smaller area is required to perform \newline
+      [going in circles] 
+    \end{tabular}
+    \caption{Pros And Cons of the constant steer and sine steer tests}
+    \label{tab:5.3}
+\end{table}

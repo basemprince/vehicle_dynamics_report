@@ -217,7 +217,7 @@ motor.maxRotSpeed       = 5200;   % [rpm] max rotational speed of the motor
 motor.k_torque          = 0.83;   % [-] motor torque constant
 motor.I_max             = 100;    % [A] max motor current
 motor.tau_mot           = 0.03;   % [s] time constant for motor actuation dynamics
-motor.tau_ped           = 0.03;   % [s] time constant for pedal dynamics
+motor.tau_ped           = 0.08;   % [s] time constant for pedal dynamics
 
 
 % ----------------------------------------------------------------

@@ -1,12 +1,8 @@
 function dataAnalysis(model_sim,vehicle_data,Ts)
 
-    % ----------------------------------------------------------------
-    %% Post-Processing and Data Analysis
-    % ----------------------------------------------------------------
-
-    % ---------------------------------
+    % ------------------
     %% Load vehicle data
-    % ---------------------------------
+    % ------------------
     Lf = vehicle_data.vehicle.Lf;  % [m] Distance between vehicle CoG and front wheels axle
     Lr = vehicle_data.vehicle.Lr;  % [m] Distance between vehicle CoG and front wheels axle
     L  = vehicle_data.vehicle.L;   % [m] Vehicle length
@@ -94,6 +90,7 @@ function dataAnalysis(model_sim,vehicle_data,Ts)
     % Total longitudinal and lateral accelerations
     Ax = dot_u(1:end) - Omega(2:end).*v(2:end);
     Ay = dot_v(1:end) + Omega(2:end).*u(2:end);
+    Ay = [Ay(1);Ay];
     % Ax low-pass filtered signal (zero-phase digital low-pass filtering)
     Wn_filter = 0.01;
     [b_butt,a_butt] = butter(4,Wn_filter,'low');
@@ -115,40 +112,40 @@ function dataAnalysis(model_sim,vehicle_data,Ts)
     % Desired sinusoidal steering angle for the equivalent single track front wheel
     desired_steer_atWheel = delta_D/tau_D;
 
-
-    % ---------------------------------
-    %% PLOTS
-    % ---------------------------------
+    % -----------------
+    %% For saving Plots
+    % -----------------
     output_file = '../graphs/q%d/ex-5%d%s.eps';
-    q = 1;              
+    q = 3;              
 
-    % ---------------------------------
-%     %% Plot vehicle inputs
-%     % ---------------------------------
-%     figure('Name','Inputs','NumberTitle','off'), clf   
-%     % --- pedal --- %
-%     ax(1) = subplot(121);
-%     hold on
-%     plot(time_sim,ped_0,'b','LineWidth',2)
-%     plot(time_sim,ped,'r','LineWidth',2)
-%     grid on
-%     ylabel('pedal $p_0$ [-]')
-%     legend('control','state (1st order dyn)')
-%     xlabel('Time (s)')
-%     xlim([0 time_sim(end)])
-%     pbaspect([1 1 1]);
-%     % --- delta_0 --- %
-%     ax(2) = subplot(122);
-%     plot(time_sim,delta_D,'b','LineWidth',2)
-%     grid on
-%     ylabel('steering angle $\delta_D$ [deg]')
-%     xlim([0 time_sim(end)])
-%     xlabel('Time (s)')
-%     pbaspect([1 1 1]);
-% %     exportgraphics(gcf,sprintf(output_file,q,q,'a'),'ContentType','vector')
-    % ---------------------------------
+    % --------------------
+    %% Plot vehicle inputs
+    % --------------------
+    figure('Name','Inputs','NumberTitle','off'), clf   
+    % --- pedal --- %
+    ax(1) = subplot(121);
+    hold on
+    plot(time_sim,ped_0,'b','LineWidth',2)
+    plot(time_sim,ped,'r','LineWidth',2)
+    grid on
+    ylabel('pedal $p_0$ [-]')
+    legend('control','state (1st order dyn)')
+    xlabel('Time (s)')
+    xlim([0 time_sim(end)])
+    pbaspect([1 1 1]);
+    % --- delta_0 --- %
+    ax(2) = subplot(122);
+    plot(time_sim,delta_D,'b','LineWidth',2)
+    grid on
+    ylabel('steering angle $\delta_D$ [deg]')
+    xlim([0 time_sim(end)])
+    xlabel('Time (s)')
+    pbaspect([1 1 1]);
+%     exportgraphics(gcf,sprintf(output_file,q,q,'a'),'ContentType','vector')
+    % --------------------
     %% Plot vehicle motion
-    % ---------------------------------
+    % --------------------
+    limiter = time_sim(end);
     figure('Name','veh motion','NumberTitle','off'), clf   
     % --- u --- %
     ax(1) = subplot(141);
@@ -158,8 +155,9 @@ function dataAnalysis(model_sim,vehicle_data,Ts)
     grid on
     legend('Location','southeast')
     ylabel('$u$ [km/h]')
-    xlim([0 time_sim(end)])
+    xlim([0 limiter])
     xlabel('Time (s)')
+    xticks([2 4 6 8 10])
     pbaspect([1 1 1]);
     hold off
     % --- v --- %
@@ -167,35 +165,38 @@ function dataAnalysis(model_sim,vehicle_data,Ts)
     plot(time_sim,v,'b','LineWidth',2)
     grid on
     ylabel('$v$ [m/s]')
-    xlim([0 time_sim(end)])
+    xlim([0 limiter])
     xlabel('Time (s)')
+    xticks([2 4 6 8 10])
     pbaspect([1 1 1]);
     % --- Omega --- %
     ax(3) = subplot(143);
     plot(time_sim,Omega,'b','LineWidth',2)
     grid on
     ylabel('$\Omega$ [rad/s]')
-    xlim([0 time_sim(end)])
+    xlim([0 limiter])
+    xticks([2 4 6 8 10])
     xlabel('Time (s)')
     pbaspect([1 1 1]);
     % --- ax --- %
     ax(4) = subplot(144);
-    plot(time_sim(2:end),dot_u - Omega(2:end).*v(2:end),'m','LineWidth',2,'displayName','$\dot{u}-\Omega v$')
-    hold on
-    plot(time_sim(2:end),diff(u)/Ts,'--g','LineWidth',2,'displayName','$\dot{u}$')
-    plot(time_sim(2:end),Ax_filt,'-.b','LineWidth',1,'displayName','filt $\dot{u}-\Omega v$')
-    plot(time_sim(2:end),dot_u_filt,'-.r','LineWidth',1,'displayName','filt $\dot{u}$')
-    hold off
+%     plot(time_sim(2:end),dot_u - Omega(2:end).*v(2:end),'m','LineWidth',2,'displayName','$\dot{u}-\Omega v$')
+%     hold on
+%     plot(time_sim(2:end),diff(u)/Ts,'--g','LineWidth',2,'displayName','$\dot{u}$')
+%     plot(time_sim(2:end),Ax_filt,'-.b','LineWidth',1,'displayName','filt $\dot{u}-\Omega v$')
+    plot(time_sim(2:end),dot_u_filt,'b','LineWidth',2,'displayName','filt $\dot{u}$')
+%     hold off
     grid on
     ylabel('$a_{x}$ $[m/s^2]$')
-    legend('Location','northeast')
-    xlim([0 time_sim(end)])
+%     legend('Location','northeast')
+    xlim([0 limiter])
+    xticks([2 4 6 8 10])
     xlabel('Time (s)')
     pbaspect([1 1 1])
-%     exportgraphics(gcf,sprintf(output_file,q,q,'b'),'ContentType','vector')
-    % ---------------------------------
+    exportgraphics(gcf,sprintf(output_file,q,q,'b'),'ContentType','vector')
+    % ---------------------
     %% Plot steering angles
-    % ---------------------------------
+    % ---------------------
     figure('Name','steer','NumberTitle','off'), clf   
     % --- delta_0 --- %
     ax(1) = subplot(221);
@@ -241,349 +242,348 @@ function dataAnalysis(model_sim,vehicle_data,Ts)
 %     exportgraphics(gcf,sprintf(output_file,q,q,'c'),'ContentType','vector')
     
     
-    % -------------------------------
-%     %% Plot lateral tire slips and lateral forces
-%     % -------------------------------
-%     figure('Name','Lateral slips & forces','NumberTitle','off'), clf
-%     % --- alpha_rr --- %
-%     ax(1) = subplot(241);
-%     plot(time_sim,alpha_rr,'b','LineWidth',2)
-%     grid on
-%     ylabel('$\alpha_{rr}$ [deg]')
-%     xlim([0 time_sim(end)])
-%     xlabel('Time (s)')
-%     pbaspect([1 1 1]);
-%     % --- alpha_rl --- %
-%     ax(2) = subplot(242);
-%     plot(time_sim,alpha_rl,'m','LineWidth',2)
-%     grid on
-%     ylabel('$\alpha_{rl}$ [deg]')
-%     xlim([0 time_sim(end)])
-%     xlabel('Time (s)')
-%     pbaspect([1 1 1]);
-%     % --- alpha_fr --- %
-%     ax(3) = subplot(243);
-%     plot(time_sim,alpha_fr,'b','LineWidth',2)
-%     grid on
-%     ylabel('$\alpha_{fr}$ [deg]')
-%     xlim([0 time_sim(end)])
-%     xlabel('Time (s)')
-%     pbaspect([1 1 1]);
-%     % --- alpha_fl --- %
-%     ax(4) = subplot(244);
-%     plot(time_sim,alpha_fl,'m','LineWidth',2)
-%     grid on
-%     ylabel('$\alpha_{fl}$ [deg]')
-%     xlim([0 time_sim(end)])
-%     xlabel('Time (s)')
-%     pbaspect([1 1 1]);
-%     % --- Fy_rr --- %
-%     ax(5) = subplot(245);
-%     plot(time_sim,Fy_rr,'b','LineWidth',2)
-%     grid on
-%     ylabel('$Fy_{rr}$ [N]')
-%     xlim([0 time_sim(end)])
-%     xlabel('Time (s)')
-%     pbaspect([1 1 1]);
-%     % --- Fy_rl --- %
-%     ax(6) = subplot(246);
-%     plot(time_sim,Fy_rl,'m','LineWidth',2)
-%     grid on
-%     ylabel('$Fy_{rl}$ [N]')
-%     xlim([0 time_sim(end)])
-%     xlabel('Time (s)')
-%     pbaspect([1 1 1]);
-%     % --- Fy_fr --- %
-%     ax(7) = subplot(247);
-%     plot(time_sim,Fy_fr,'b','LineWidth',2)
-%     grid on
-%     ylabel('$Fy_{fr}$ [N]')
-%     xlim([0 time_sim(end)])
-%     xlabel('Time (s)')
-%     pbaspect([1 1 1]);
-%     % --- Fy_fl --- %
-%     ax(8) = subplot(248);
-%     plot(time_sim,Fy_fl,'m','LineWidth',2)
-%     grid on
-%     ylabel('$Fy_{fl}$ [N]')
-%     xlim([0 time_sim(end)])
-%     xlabel('Time (s)')
-%     pbaspect([1 1 1]);
-%     linkaxes([ax(1) ax(2) ax(3) ax(4)],'xy');
-%     linkaxes([ax(5) ax(6) ax(7) ax(8)],'xy');
-% %     exportgraphics(gcf,sprintf(output_file,q,q,'d'),'ContentType','vector')
-%     % linkaxes(ax,'x')
-%     clear ax
-% 
-%     % ---------------------------------
-%     %% Plot longitudinal tire slips and longitudinal forces
-%     % ---------------------------------
-%     figure('Name','Long slips & forces','NumberTitle','off'), clf
-%     % --- kappa_rr --- %
-%     ax(1) = subplot(241);
-%     plot(time_sim,kappa_rr,'b','LineWidth',2)
-%     grid on
-%     ylabel('$\kappa_{rr}$ [-]')
-%     xlim([0 time_sim(end)])
-%     xlabel('Time (s)')
-%     pbaspect([1 1 1])
-%     % --- kappa_rl --- %
-%     ax(2) = subplot(242);
-%     plot(time_sim,kappa_rl,'m','LineWidth',2)
-%     grid on
-%     ylabel('$\kappa_{rl}$ [-]')
-%     xlim([0 time_sim(end)])
-%     xlabel('Time (s)')
-%     pbaspect([1 1 1])
-%     % --- kappa_fr --- %
-%     ax(3) = subplot(243);
-%     plot(time_sim,kappa_fr,'b','LineWidth',2)
-%     grid on
-%     ylabel('$\kappa_{fr}$ [-]')
-%     xlim([0 time_sim(end)])
-%     xlabel('Time (s)')
-%     pbaspect([1 1 1])
-%     % --- kappa_fl --- %
-%     ax(4) = subplot(244);
-%     plot(time_sim,kappa_fl,'m','LineWidth',2)
-%     grid on
-%     ylabel('$\kappa_{fl}$ [-]')
-%     xlim([0 time_sim(end)])
-%     xlabel('Time (s)')
-%     pbaspect([1 1 1])
-%     
-%     linkaxes([ax(1) ax(2) ax(3) ax(4)],'xy');
-%     % --- Fx_rr --- %
-%     ax(5) = subplot(245);
-%     plot(time_sim,Fx_rr,'b','LineWidth',2)
-%     grid on
-%     ylabel('$Fx_{rr}$ [N]')
-%     xlim([0 time_sim(end)])
-%     xlabel('Time (s)')
-%     pbaspect([1 1 1])
-%     % --- Fx_rl --- %
-%     ax(6) = subplot(246);
-%     plot(time_sim,Fx_rl,'m','LineWidth',2)
-%     grid on
-%     ylabel('$Fx_{rl}$ [N]')
-%     xlim([0 time_sim(end)])
-%     xlabel('Time (s)')
-%     pbaspect([1 1 1])
-%     % --- Fx_fr --- %
-%     ax(7) = subplot(247);
-%     plot(time_sim,Fx_fr,'b','LineWidth',2)
-%     grid on
-%     ylabel('$Fx_{fr}$ [N]')
-%     xlim([0 time_sim(end)])
-%     xlabel('Time (s)')
-%     pbaspect([1 1 1])
-%     % --- Fx_fl --- %
-%     ax(8) = subplot(248);
-%     plot(time_sim,Fx_fl,'m','LineWidth',2)
-%     grid on
-%     ylabel('$Fx_{fl}$ [N]')
-%     xlim([0 time_sim(end)])
-%     xlabel('Time (s)')
-%     pbaspect([1 1 1])
-%     linkaxes([ax(5) ax(6) ax(7) ax(8)],'xy');
-%     
-% %     exportgraphics(gcf,sprintf(output_file,q,q,'f'),'ContentType','vector')
-%     % linkaxes(ax,'x')
-%     clear ax
-% 
-%     % ---------------------------------
-%     %% Plot wheel torques and wheel rates
-%     % ---------------------------------
-%     figure('Name','Wheel rates & torques','NumberTitle','off'), clf
-%     % --- omega_rr --- %
-%     ax(1) = subplot(241);
-%     plot(time_sim,omega_rr,'b','LineWidth',2)
-%     grid on
-%     ylabel('$\omega_{rr}$ [rad/s]')
-%     xlim([0 time_sim(end)])
-%     xlabel('Time (s)')
-%     pbaspect([1 1 1])
-%     % --- omega_rl --- %
-%     ax(2) = subplot(242);
-%     plot(time_sim,omega_rl,'m','LineWidth',2)
-%     grid on
-%     ylabel('$\omega_{rl}$ [rad/s]')
-%     xlim([0 time_sim(end)])
-%     xlabel('Time (s)')
-%     pbaspect([1 1 1])
-%     % --- omega_fr --- %
-%     ax(3) = subplot(243);
-%     plot(time_sim,omega_fr,'b','LineWidth',2)
-%     grid on
-%     ylabel('$\omega_{fr}$ [rad/s]')
-%     xlim([0 time_sim(end)])
-%     xlabel('Time (s)')
-%     pbaspect([1 1 1])
-%     % --- omega_fl --- %
-%     ax(4) = subplot(244);
-%     plot(time_sim,omega_fl,'m','LineWidth',2)
-%     grid on
-%     ylabel('$\omega_{fl}$ [rad/s]')
-%     xlim([0 time_sim(end)])
-%     xlabel('Time (s)')
-%     pbaspect([1 1 1])
-%     linkaxes([ax(1) ax(2) ax(3) ax(4)],'xy');
-%     % --- Tw_rr --- %
-%     ax(5) = subplot(245);
-%     plot(time_sim,Tw_rr,'b','LineWidth',2)
-%     grid on
-%     ylabel('$Tw_{rr}$ [Nm]')
-%     xlim([0 time_sim(end)])
-%     xlabel('Time (s)')
-%     pbaspect([1 1 1])
-%     % --- Tw_rl --- %
-%     ax(6) = subplot(246);
-%     plot(time_sim,Tw_rl,'m','LineWidth',2)
-%     grid on
-%     ylabel('$Tw_{rl}$ [Nm]')
-%     xlim([0 time_sim(end)])
-%     xlabel('Time (s)')
-%     pbaspect([1 1 1])
-%     % --- Tw_fr --- %
-%     ax(7) = subplot(247);
-%     plot(time_sim,Tw_fr,'b','LineWidth',2)
-%     grid on
-%     ylabel('$Tw_{fr}$ [Nm]')
-%     xlim([0 time_sim(end)])
-%     xlabel('Time (s)')
-%     pbaspect([1 1 1])
-%     % --- Tw_fl --- %
-%     ax(8) = subplot(248);
-%     plot(time_sim,Tw_fl,'m','LineWidth',2)
-%     grid on
-%     ylabel('$Tw_{fl}$ [Nm]')
-%     xlim([0 time_sim(end)])
-%     xlabel('Time (s)')
-%     pbaspect([1 1 1])
-%     linkaxes([ax(5) ax(6) ax(7) ax(8)],'xy');
-% %     exportgraphics(gcf,sprintf(output_file,q,q,'g'),'ContentType','vector')
-%     clear ax
-% 
-%     % ---------------------------------
-%     %% Plot vertical tire loads and self-aligning torques
-%     % ---------------------------------
-%     figure('Name','Vert loads & aligning torques','NumberTitle','off'), clf
-%     % --- Fz_rr --- %
-%     ax(1) = subplot(241);
-%     plot(time_sim,Fz_rr,'b','LineWidth',2)
-%     grid on
-%     ylabel('$Fz_{rr}$ [N]')
-%     xlim([0 time_sim(end)])
-%     xlabel('Time (s)')
-%     pbaspect([1 1 1])
-%     % --- Fz_rl --- %
-%     ax(2) = subplot(242);
-%     plot(time_sim,Fz_rl,'m','LineWidth',2)
-%     grid on
-%     ylabel('$Fz_{rl}$ [N]')
-%     xlim([0 time_sim(end)])
-%     xlabel('Time (s)')
-%     pbaspect([1 1 1])
-%     % --- Fz_fr --- %
-%     ax(3) = subplot(243);
-%     plot(time_sim,Fz_fr,'b','LineWidth',2)
-%     grid on
-%     ylabel('$Fz_{fr}$ [N]')
-%     xlim([0 time_sim(end)])
-%     xlabel('Time (s)')
-%     pbaspect([1 1 1])
-%     % --- Fz_fl --- %
-%     ax(4) = subplot(244);
-%     plot(time_sim,Fz_fl,'m','LineWidth',2)
-%     grid on
-%     ylabel('$Fz_{fl}$ [N]')
-%     xlim([0 time_sim(end)])
-%     xlabel('Time (s)')
-%     pbaspect([1 1 1])
-%     linkaxes([ax(1) ax(2) ax(3) ax(4)],'xy');
-%     % --- Mz_rr --- %
-%     ax(5) = subplot(245);
-%     plot(time_sim,Mz_rr,'b','LineWidth',2)
-%     grid on
-%     ylabel('$Mz_{rr}$ [Nm]')
-%     xlim([0 time_sim(end)])
-%     xlabel('Time (s)')
-%     pbaspect([1 1 1])
-%     % --- Mz_rl --- %
-%     ax(6) = subplot(246);
-%     plot(time_sim,Mz_rl,'m','LineWidth',2)
-%     grid on
-%     ylabel('$Mz_{rl}$ [Nm]')
-%     xlim([0 time_sim(end)])
-%     xlabel('Time (s)')
-%     pbaspect([1 1 1])
-%     % --- Mz_fr --- %
-%     ax(7) = subplot(247);
-%     plot(time_sim,Mz_fr,'b','LineWidth',2)
-%     grid on
-%     ylabel('$Mz_{fr}$ [Nm]')
-%     xlim([0 time_sim(end)])
-%     xlabel('Time (s)')
-%     pbaspect([1 1 1])
-%     % --- Mz_fl --- %
-%     ax(8) = subplot(248);
-%     plot(time_sim,Mz_fl,'m','LineWidth',2)
-%     grid on
-%     ylabel('$Mz_{fl}$ [Nm]')
-%     xlim([0 time_sim(end)])
-%     xlabel('Time (s)')
-%     pbaspect([1 1 1])
-%     linkaxes([ax(5) ax(6) ax(7) ax(8)],'xy'); 
-% %     exportgraphics(gcf,sprintf(output_file,q,q,'h'),'ContentType','vector')
-%     % linkaxes(ax,'x')
-%     clear ax
-%     
-%     % ---------------------------------
-%     %% Plot wheel camber
-%     % ---------------------------------
-%     figure('Name','Wheel camber','NumberTitle','off'), clf
-%     % --- gamma_rr --- %
-%     ax(1) = subplot(221);
-%     plot(time_sim,gamma_rr,'b','LineWidth',2)
-%     grid on
-%     ylabel('$\gamma_{rr}$ [deg]')
-%     xlim([0 time_sim(end)])
-%     xlabel('Time (s)')
-%     pbaspect([1 1 1])
-%     % --- gamma_rl --- %
-%     ax(2) = subplot(222);
-%     plot(time_sim,gamma_rl,'b','LineWidth',2)
-%     grid on
-%     ylabel('$\gamma_{rl}$ [deg]')
-%     xlim([0 time_sim(end)])
-%     xlabel('Time (s)')
-%     pbaspect([1 1 1])
-%     % --- gamma_fr --- %
-%     ax(3) = subplot(223);
-%     plot(time_sim,gamma_fr,'m','LineWidth',2)
-%     grid on
-%     ylabel('$\gamma_{fr}$ [deg]')
-%     xlim([0 time_sim(end)])
-%     xlabel('Time (s)')
-%     pbaspect([1 1 1])
-%     % --- gamma_fl --- %
-%     ax(4) = subplot(224);
-%     plot(time_sim,gamma_fl,'m','LineWidth',2)
-%     grid on
-%     ylabel('$\gamma_{fl}$ [deg]')
-%     xlim([0 time_sim(end)])
-%     xlabel('Time (s)')
-%     pbaspect([1 1 1])
-%     linkaxes([ax(1) ax(2) ax(3) ax(4)],'xy');
-%     set(ax(1),'position',[.0 .55 .35 .35])
-%     set(ax(2),'position',[.0 .1 .35 .35])
-%     set(ax(3),'position',[.25 .55 .35 .35])
-%     set(ax(4),'position',[.25 .1 .35 .35])
-%     
-% %     exportgraphics(gcf,sprintf(output_file,q,q,'i'),'ContentType','vector')
-%     % linkaxes(ax,'x')
-%     clear ax
-%     
+    % -------------------------------------------
+    %% Plot lateral tire slips and lateral forces
+    % -------------------------------------------
+    figure('Name','Lateral slips & forces','NumberTitle','off'), clf
+    % --- alpha_rr --- %
+    ax(1) = subplot(241);
+    plot(time_sim,alpha_rr,'b','LineWidth',2)
+    grid on
+    ylabel('$\alpha_{rr}$ [deg]')
+    xlim([0 time_sim(end)])
+    xlabel('Time (s)')
+    pbaspect([1 1 1]);
+    % --- alpha_rl --- %
+    ax(2) = subplot(242);
+    plot(time_sim,alpha_rl,'m','LineWidth',2)
+    grid on
+    ylabel('$\alpha_{rl}$ [deg]')
+    xlim([0 time_sim(end)])
+    xlabel('Time (s)')
+    pbaspect([1 1 1]);
+    % --- alpha_fr --- %
+    ax(3) = subplot(243);
+    plot(time_sim,alpha_fr,'b','LineWidth',2)
+    grid on
+    ylabel('$\alpha_{fr}$ [deg]')
+    xlim([0 time_sim(end)])
+    xlabel('Time (s)')
+    pbaspect([1 1 1]);
+    % --- alpha_fl --- %
+    ax(4) = subplot(244);
+    plot(time_sim,alpha_fl,'m','LineWidth',2)
+    grid on
+    ylabel('$\alpha_{fl}$ [deg]')
+    xlim([0 time_sim(end)])
+    xlabel('Time (s)')
+    pbaspect([1 1 1]);
+    % --- Fy_rr --- %
+    ax(5) = subplot(245);
+    plot(time_sim,Fy_rr,'b','LineWidth',2)
+    grid on
+    ylabel('$Fy_{rr}$ [N]')
+    xlim([0 time_sim(end)])
+    xlabel('Time (s)')
+    pbaspect([1 1 1]);
+    % --- Fy_rl --- %
+    ax(6) = subplot(246);
+    plot(time_sim,Fy_rl,'m','LineWidth',2)
+    grid on
+    ylabel('$Fy_{rl}$ [N]')
+    xlim([0 time_sim(end)])
+    xlabel('Time (s)')
+    pbaspect([1 1 1]);
+    % --- Fy_fr --- %
+    ax(7) = subplot(247);
+    plot(time_sim,Fy_fr,'b','LineWidth',2)
+    grid on
+    ylabel('$Fy_{fr}$ [N]')
+    xlim([0 time_sim(end)])
+    xlabel('Time (s)')
+    pbaspect([1 1 1]);
+    % --- Fy_fl --- %
+    ax(8) = subplot(248);
+    plot(time_sim,Fy_fl,'m','LineWidth',2)
+    grid on
+    ylabel('$Fy_{fl}$ [N]')
+    xlim([0 time_sim(end)])
+    xlabel('Time (s)')
+    pbaspect([1 1 1]);
+    linkaxes([ax(1) ax(2) ax(3) ax(4)],'xy');
+    linkaxes([ax(5) ax(6) ax(7) ax(8)],'xy');
+%     exportgraphics(gcf,sprintf(output_file,q,q,'d'),'ContentType','vector')
+    % linkaxes(ax,'x')
+    clear ax
+
+    % -----------------------------------------------------
+    %% Plot longitudinal tire slips and longitudinal forces
+    % -----------------------------------------------------
+    figure('Name','Long slips & forces','NumberTitle','off'), clf
+    % --- kappa_rr --- %
+    ax(1) = subplot(241);
+    plot(time_sim,kappa_rr,'b','LineWidth',2)
+    grid on
+    ylabel('$\kappa_{rr}$ [-]')
+    xlim([0 time_sim(end)])
+    xlabel('Time (s)')
+    pbaspect([1 1 1])
+    % --- kappa_rl --- %
+    ax(2) = subplot(242);
+    plot(time_sim,kappa_rl,'m','LineWidth',2)
+    grid on
+    ylabel('$\kappa_{rl}$ [-]')
+    xlim([0 time_sim(end)])
+    xlabel('Time (s)')
+    pbaspect([1 1 1])
+    % --- kappa_fr --- %
+    ax(3) = subplot(243);
+    plot(time_sim,kappa_fr,'b','LineWidth',2)
+    grid on
+    ylabel('$\kappa_{fr}$ [-]')
+    xlim([0 time_sim(end)])
+    xlabel('Time (s)')
+    pbaspect([1 1 1])
+    % --- kappa_fl --- %
+    ax(4) = subplot(244);
+    plot(time_sim,kappa_fl,'m','LineWidth',2)
+    grid on
+    ylabel('$\kappa_{fl}$ [-]')
+    xlim([0 time_sim(end)])
+    xlabel('Time (s)')
+    pbaspect([1 1 1])
+    
+    linkaxes([ax(1) ax(2) ax(3) ax(4)],'xy');
+    % --- Fx_rr --- %
+    ax(5) = subplot(245);
+    plot(time_sim,Fx_rr,'b','LineWidth',2)
+    grid on
+    ylabel('$Fx_{rr}$ [N]')
+    xlim([0 time_sim(end)])
+    xlabel('Time (s)')
+    pbaspect([1 1 1])
+    % --- Fx_rl --- %
+    ax(6) = subplot(246);
+    plot(time_sim,Fx_rl,'m','LineWidth',2)
+    grid on
+    ylabel('$Fx_{rl}$ [N]')
+    xlim([0 time_sim(end)])
+    xlabel('Time (s)')
+    pbaspect([1 1 1])
+    % --- Fx_fr --- %
+    ax(7) = subplot(247);
+    plot(time_sim,Fx_fr,'b','LineWidth',2)
+    grid on
+    ylabel('$Fx_{fr}$ [N]')
+    xlim([0 time_sim(end)])
+    xlabel('Time (s)')
+    pbaspect([1 1 1])
+    % --- Fx_fl --- %
+    ax(8) = subplot(248);
+    plot(time_sim,Fx_fl,'m','LineWidth',2)
+    grid on
+    ylabel('$Fx_{fl}$ [N]')
+    xlim([0 time_sim(end)])
+    xlabel('Time (s)')
+    pbaspect([1 1 1])
+    linkaxes([ax(5) ax(6) ax(7) ax(8)],'xy');
+    
+%     exportgraphics(gcf,sprintf(output_file,q,q,'f'),'ContentType','vector')
+    % linkaxes(ax,'x')
+    clear ax
+
+    % -----------------------------------
+    %% Plot wheel torques and wheel rates
+    % -----------------------------------
+    figure('Name','Wheel rates & torques','NumberTitle','off'), clf
+    % --- omega_rr --- %
+    ax(1) = subplot(241);
+    plot(time_sim,omega_rr,'b','LineWidth',2)
+    grid on
+    ylabel('$\omega_{rr}$ [rad/s]')
+    xlim([0 time_sim(end)])
+    xlabel('Time (s)')
+    pbaspect([1 1 1])
+    % --- omega_rl --- %
+    ax(2) = subplot(242);
+    plot(time_sim,omega_rl,'m','LineWidth',2)
+    grid on
+    ylabel('$\omega_{rl}$ [rad/s]')
+    xlim([0 time_sim(end)])
+    xlabel('Time (s)')
+    pbaspect([1 1 1])
+    % --- omega_fr --- %
+    ax(3) = subplot(243);
+    plot(time_sim,omega_fr,'b','LineWidth',2)
+    grid on
+    ylabel('$\omega_{fr}$ [rad/s]')
+    xlim([0 time_sim(end)])
+    xlabel('Time (s)')
+    pbaspect([1 1 1])
+    % --- omega_fl --- %
+    ax(4) = subplot(244);
+    plot(time_sim,omega_fl,'m','LineWidth',2)
+    grid on
+    ylabel('$\omega_{fl}$ [rad/s]')
+    xlim([0 time_sim(end)])
+    xlabel('Time (s)')
+    pbaspect([1 1 1])
+    linkaxes([ax(1) ax(2) ax(3) ax(4)],'xy');
+    % --- Tw_rr --- %
+    ax(5) = subplot(245);
+    plot(time_sim,Tw_rr,'b','LineWidth',2)
+    grid on
+    ylabel('$Tw_{rr}$ [Nm]')
+    xlim([0 time_sim(end)])
+    xlabel('Time (s)')
+    pbaspect([1 1 1])
+    % --- Tw_rl --- %
+    ax(6) = subplot(246);
+    plot(time_sim,Tw_rl,'m','LineWidth',2)
+    grid on
+    ylabel('$Tw_{rl}$ [Nm]')
+    xlim([0 time_sim(end)])
+    xlabel('Time (s)')
+    pbaspect([1 1 1])
+    % --- Tw_fr --- %
+    ax(7) = subplot(247);
+    plot(time_sim,Tw_fr,'b','LineWidth',2)
+    grid on
+    ylabel('$Tw_{fr}$ [Nm]')
+    xlim([0 time_sim(end)])
+    xlabel('Time (s)')
+    pbaspect([1 1 1])
+    % --- Tw_fl --- %
+    ax(8) = subplot(248);
+    plot(time_sim,Tw_fl,'m','LineWidth',2)
+    grid on
+    ylabel('$Tw_{fl}$ [Nm]')
+    xlim([0 time_sim(end)])
+    xlabel('Time (s)')
+    pbaspect([1 1 1])
+    linkaxes([ax(5) ax(6) ax(7) ax(8)],'xy');
+%     exportgraphics(gcf,sprintf(output_file,q,q,'g'),'ContentType','vector')
+    clear ax
+
+    % ---------------------------------------------------
+    %% Plot vertical tire loads and self-aligning torques
+    % ---------------------------------------------------
+    figure('Name','Vert loads & aligning torques','NumberTitle','off'), clf
+    % --- Fz_rr --- %
+    ax(1) = subplot(241);
+    plot(time_sim,Fz_rr,'b','LineWidth',2)
+    grid on
+    ylabel('$Fz_{rr}$ [N]')
+    xlim([0 time_sim(end)])
+    xlabel('Time (s)')
+    pbaspect([1 1 1])
+    % --- Fz_rl --- %
+    ax(2) = subplot(242);
+    plot(time_sim,Fz_rl,'m','LineWidth',2)
+    grid on
+    ylabel('$Fz_{rl}$ [N]')
+    xlim([0 time_sim(end)])
+    xlabel('Time (s)')
+    pbaspect([1 1 1])
+    % --- Fz_fr --- %
+    ax(3) = subplot(243);
+    plot(time_sim,Fz_fr,'b','LineWidth',2)
+    grid on
+    ylabel('$Fz_{fr}$ [N]')
+    xlim([0 time_sim(end)])
+    xlabel('Time (s)')
+    pbaspect([1 1 1])
+    % --- Fz_fl --- %
+    ax(4) = subplot(244);
+    plot(time_sim,Fz_fl,'m','LineWidth',2)
+    grid on
+    ylabel('$Fz_{fl}$ [N]')
+    xlim([0 time_sim(end)])
+    xlabel('Time (s)')
+    pbaspect([1 1 1])
+    linkaxes([ax(1) ax(2) ax(3) ax(4)],'xy');
+    % --- Mz_rr --- %
+    ax(5) = subplot(245);
+    plot(time_sim,Mz_rr,'b','LineWidth',2)
+    grid on
+    ylabel('$Mz_{rr}$ [Nm]')
+    xlim([0 time_sim(end)])
+    xlabel('Time (s)')
+    pbaspect([1 1 1])
+    % --- Mz_rl --- %
+    ax(6) = subplot(246);
+    plot(time_sim,Mz_rl,'m','LineWidth',2)
+    grid on
+    ylabel('$Mz_{rl}$ [Nm]')
+    xlim([0 time_sim(end)])
+    xlabel('Time (s)')
+    pbaspect([1 1 1])
+    % --- Mz_fr --- %
+    ax(7) = subplot(247);
+    plot(time_sim,Mz_fr,'b','LineWidth',2)
+    grid on
+    ylabel('$Mz_{fr}$ [Nm]')
+    xlim([0 time_sim(end)])
+    xlabel('Time (s)')
+    pbaspect([1 1 1])
+    % --- Mz_fl --- %
+    ax(8) = subplot(248);
+    plot(time_sim,Mz_fl,'m','LineWidth',2)
+    grid on
+    ylabel('$Mz_{fl}$ [Nm]')
+    xlim([0 time_sim(end)])
+    xlabel('Time (s)')
+    pbaspect([1 1 1])
+    linkaxes([ax(5) ax(6) ax(7) ax(8)],'xy'); 
+%     exportgraphics(gcf,sprintf(output_file,q,q,'h'),'ContentType','vector')
+    % linkaxes(ax,'x')
+    clear ax
+    
+    % ------------------
+    %% Plot wheel camber
+    % ------------------
+    figure('Name','Wheel camber','NumberTitle','off'), clf
+    % --- gamma_rr --- %
+    ax(1) = subplot(221);
+    plot(time_sim,gamma_rr,'b','LineWidth',2)
+    grid on
+    ylabel('$\gamma_{rr}$ [deg]')
+    xlim([0 time_sim(end)])
+    xlabel('Time (s)')
+    pbaspect([1 1 1])
+    % --- gamma_rl --- %
+    ax(2) = subplot(222);
+    plot(time_sim,gamma_rl,'b','LineWidth',2)
+    grid on
+    ylabel('$\gamma_{rl}$ [deg]')
+    xlim([0 time_sim(end)])
+    xlabel('Time (s)')
+    pbaspect([1 1 1])
+    % --- gamma_fr --- %
+    ax(3) = subplot(223);
+    plot(time_sim,gamma_fr,'m','LineWidth',2)
+    grid on
+    ylabel('$\gamma_{fr}$ [deg]')
+    xlim([0 time_sim(end)])
+    xlabel('Time (s)')
+    pbaspect([1 1 1])
+    % --- gamma_fl --- %
+    ax(4) = subplot(224);
+    plot(time_sim,gamma_fl,'m','LineWidth',2)
+    grid on
+    ylabel('$\gamma_{fl}$ [deg]')
+    xlim([0 time_sim(end)])
+    xlabel('Time (s)')
+    pbaspect([1 1 1])
+    linkaxes([ax(1) ax(2) ax(3) ax(4)],'xy');
+    set(ax(1),'position',[.0 .55 .35 .35])
+    set(ax(2),'position',[.0 .1 .35 .35])
+    set(ax(3),'position',[.25 .55 .35 .35])
+    set(ax(4),'position',[.25 .1 .35 .35])
+    
+%     exportgraphics(gcf,sprintf(output_file,q,q,'i'),'ContentType','vector')
+    % linkaxes(ax,'x')
+    clear ax
     
     % ---------------------------------
     %% Plot accelerations, chassis side slip angle and curvature
@@ -647,45 +647,45 @@ function dataAnalysis(model_sim,vehicle_data,Ts)
     % linkaxes(ax,'x')
     clear ax
 
-    % ---------------------------------
+    % --------------------------
     %% Plot vehicle pose x,y,psi
-    % ---------------------------------
-%     figure('Name','Pose','NumberTitle','off'), clf 
-%     % --- x --- %
-%     ax(1) = subplot(131);
-%     plot(time_sim,x_CoM,'b','LineWidth',2)
-%     grid on
-%     ylabel('$x$ [m]')
-%     xlim([0 time_sim(end)])
-%     xlabel('Time (s)')
-%     pbaspect([1 1 1])
-%     % --- y --- %
-%     ax(2) = subplot(132);
-%     plot(time_sim,y_CoM,'b','LineWidth',2)
-%     grid on
-%     ylabel('$y$ [m]')
-%     xlim([0 time_sim(end)])
-%     xlabel('Time (s)')
-%     pbaspect([1 1 1])
-%     % --- psi --- %
-%     ax(3) = subplot(133);
-%     plot(time_sim,rad2deg(psi),'b','LineWidth',2)
-%     grid on
-%     ylabel('$\psi$ [deg]')
-%     xlim([0 time_sim(end)])
-%     xlabel('Time (s)')
-%     pbaspect([1 1 1])
-% %     exportgraphics(gcf,sprintf(output_file,q,q,'k'),'ContentType','vector')
-%     % linkaxes(ax,'x')
-%     clear ax
+    % --------------------------
+    figure('Name','Pose','NumberTitle','off'), clf 
+    % --- x --- %
+    ax(1) = subplot(131);
+    plot(time_sim,x_CoM,'b','LineWidth',2)
+    grid on
+    ylabel('$x$ [m]')
+    xlim([0 time_sim(end)])
+    xlabel('Time (s)')
+    pbaspect([1 1 1])
+    % --- y --- %
+    ax(2) = subplot(132);
+    plot(time_sim,y_CoM,'b','LineWidth',2)
+    grid on
+    ylabel('$y$ [m]')
+    xlim([0 time_sim(end)])
+    xlabel('Time (s)')
+    pbaspect([1 1 1])
+    % --- psi --- %
+    ax(3) = subplot(133);
+    plot(time_sim,rad2deg(psi),'b','LineWidth',2)
+    grid on
+    ylabel('$\psi$ [deg]')
+    xlim([0 time_sim(end)])
+    xlabel('Time (s)')
+    pbaspect([1 1 1])
+%     exportgraphics(gcf,sprintf(output_file,q,q,'k'),'ContentType','vector')
+    % linkaxes(ax,'x')
+    clear ax
 
-    % -------------------------------
+    %---------------------------------------
     %% Plot G-G diagram from simulation data
-%     % -------------------------------
+    % --------------------------------------
 %     figure('Name','G-G plot','NumberTitle','off'), clf
 %     axis equal
 %     hold on
-%     plot3(Ay,Ax_filt,u(1:end-1),'Color',color('purple'),'LineWidth',3)
+%     plot3(Ay(2:end),Ax_filt,u(1:end-1),'Color',color('purple'),'LineWidth',3)
 %     xlabel('$a_y$ [m/s$^2$]')
 %     ylabel('$a_x$ [m/s$^2$]')
 %     zlabel('$u$ [m/s]')
@@ -693,176 +693,31 @@ function dataAnalysis(model_sim,vehicle_data,Ts)
 %     grid on
 %     pbaspect([1 1 1])
 %     exportgraphics(gcf,sprintf(output_file,q,q,'l'),'ContentType','vector')
-%     % -------------------------------
-%     %% Plot vehicle path
-%     % -------------------------------
-%     N = length(time_sim);
-%     figure('Name','Real Vehicle Path','NumberTitle','off'), clf
-%     set(gca,'fontsize',16)
-%     hold on
-%     axis equal
-%     xlabel('x-coord [m]')
-%     ylabel('y-coord [m]')
-%     title('Real Vehicle Path','FontSize',18)
-%     plot(x_CoM,y_CoM,'Color',color('gold'),'LineWidth',2)
-%     for i = 1:floor(N/20):N
-%         rot_mat = [cos(psi(i)) -sin(psi(i)) ; sin(psi(i)) cos(psi(i))];
-%         pos_rr = rot_mat*[-Lr -Wr/2]';
-%         pos_rl = rot_mat*[-Lr +Wr/2]';
-%         pos_fr = rot_mat*[+Lf -Wf/2]';
-%         pos_fl = rot_mat*[+Lf +Wf/2]';
-%         pos = [pos_rr pos_rl pos_fl pos_fr];
-%         p = patch(x_CoM(i) + pos(1,:),y_CoM(i) + pos(2,:),'blue');
-%         quiver(x_CoM(i), y_CoM(i), u(i)*cos(psi(i)), u(i)*sin(psi(i)), 'color', [1,0,0]);
-%         quiver(x_CoM(i), y_CoM(i), -v(i)*sin(psi(i)), v(i)*cos(psi(i)), 'color', [0.23,0.37,0.17]);
-%     end
-%     grid on
-%     hold off
-%     pbaspect([1 1 1])
-%     exportgraphics(gcf,sprintf(output_file,q,q,'m'),'ContentType','vector')
-    %% ----------------------------------------------------------------
-    % Handling diagram fitting
-    % ----------------------------------------------------------------
-    % Y = delta - (Omega*L./u);
-%     delta_D_r = deg2rad(delta_D);
-%     delta_t = deg2rad(desired_steer_atWheel);
-%     Y = delta_t - (Omega*L./u);
-% 
-%     % define the fitting law
-%     fitting_law = @(c,x)(c(1)*x + c(2)*x.^2);  
-%     % define the initial conditions
-%     c0 = [0,0];  
-%     % define the fitting algorithm and fitting options
-%     options = optimoptions('lsqcurvefit','MaxFunctionEvaluations',50000,'MaxIterations',50000,'FunctionTolerance',1e-9,...
-%         'StepTolerance',1e-9,'Display','final-detailed');
-%     % fit the data
-%     [optim_coeffs,resnorm,~,exitflag,output] = lsqcurvefit(fitting_law,c0,[0;Ay],Y,[],[],options); 
-%     % extract the optimal fitting coefficients
-%     c_1 = optim_coeffs(1);
-%     c_2 = optim_coeffs(2);
-%     fitted_Y = c_1*[0;Ay] + c_2*[0;Ay].^2;
-%     
-%     figure('Name','Handling Diagram','NumberTitle','off'), clf
-%     
-%     plot([0;Ay],Y,'-b','LineWidth',2,'displayName','real')
-%     hold on
-%     plot([0;Ay],fitted_Y,'--r','LineWidth',2,'displayName','fitted')
-%     set(gca,'fontsize',16);%, 'XAxisLocation', 'origin','YAxisLocation', 'origin');
-%     grid on
-%     xlabel('$a_y [m^2 / s]$')
-%     ylabel('Y')
-%     legend('location','northeast','fontSize', 26);
-%     hold off
-%     pbaspect([1 1 1])
-%     set(gca,'FontSize',26)
-%     exportgraphics(gcf,sprintf(output_file,q,q,'a'),'ContentType','vector')
-%     
-%     time_step = 0:0.00100:1000;    
-%     figure('Name','Omega vs Delta','NumberTitle','off'), clf
-%     hold on
-%     plot(time_step,Omega,'-b','LineWidth',2,'displayName','$\Omega$')
-%     plot(time_step,delta*10,'-r','LineWidth',2,'displayName','$\delta$')    
-% %     plot(time_step,delta_D_r,'-r','LineWidth',2,'displayName','$\delta$')
-%     grid on
-%     xlabel('Time [s]')
-%     ylabel('rad/s')
-%     legend('location','northeast','fontSize', 20);
-%     pbaspect([1 1 1])      
-%     
-%     clear ax
-%     %% for triple graph
-%     load('50run.mat');load('80run.mat');load('100run.mat');
-%     figure('Name','Handling Diagram','NumberTitle','off'), clf
-%     time_step = 0:0.00100:1000;
-%     % -- 50km/h
-%     ax(1) = subplot(231);
-%     title('50 km\h');
-%     hold on
-%     plot([0;Ay1],Y1,'-b','LineWidth',2,'displayName','real')
-%     plot([0;Ay1],fitted_Y1,'--r','LineWidth',1,'displayName','fitted')
-%     grid on
-%     xlabel('$a_y [m^2 / s]$')
-%     ylabel('Y')
-%     legend('location','northeast','fontSize', 20);
-%     pbaspect([1 1 1])  
-% 
-%     % -- 80km/h
-%     ax(2) = subplot(232);
-%     title('80 km\h');
-%     hold on
-%     plot([0;Ay2],Y2,'-b','LineWidth',2,'displayName','real')
-%     plot([0;Ay2],fitted_Y2,'--r','LineWidth',1,'displayName','fitted')
-%     grid on
-%     xlabel('$a_y [m^2 / s]$')
-%     ylabel('Y')
-%     legend('location','northeast','fontSize', 20);
-%     pbaspect([1 1 1])  
-%     % -- 100km/h
-%     ax(3) = subplot(233);
-%     title('100 km\h');
-%     hold on
-%     plot([0;Ay3],Y3,'-b','LineWidth',2,'displayName','real')
-%     plot([0;Ay3],fitted_Y3,'--r','LineWidth',1,'displayName','fitted')
-%     grid on
-%     xlabel('$a_y [m^2 / s]$')
-%     ylabel('Y')
-%     legend('location','northeast','fontSize', 20);
-%     pbaspect([1 1 1])  
-%     ylim([-6e-3 6e-3])
-%     xlim([-10 10])
-%     set([ax(1),ax(2),ax(3)],'XTick',-10:4:10)
-%     linkaxes([ax(1),ax(2),ax(3)],'xy')
-%     hold off
-%   
-%     % -- 50km/h
-%     ax(4) = subplot(234);
-%     title('50 km\h');
-%     hold on
-%     plot(time_step,Omega1,'-b','LineWidth',2,'displayName','$\Omega$')
-%     plot(time_step,delta_D_r1,'-r','LineWidth',2,'displayName','$\delta$')
-%     grid on
-%     xlabel('Time [s]')
-%     ylabel('rad/s')
-%     ax(4).YAxis.Exponent=-1;
-%     legend('location','northeast','fontSize', 20);
-%     pbaspect([1 1 1])  
-% 
-%     % -- 80km/h
-%     ax(5) = subplot(235);
-%     title('80 km\h');
-%     hold on
-%     plot(time_step,Omega2,'-b','LineWidth',2,'displayName','$\Omega$')
-%     plot(time_step,delta_D_r2,'-r','LineWidth',2,'displayName','$\delta$')
-%     grid on
-%     xlabel('Time [s]')
-%     ylabel('rad/s')
-%     ax(5).YAxis.Exponent=-1;
-%     legend('location','northeast','fontSize', 20);
-%     pbaspect([1 1 1])  
-%     % -- 100km/h
-%     ax(6) = subplot(236);
-%     title('100 km\h');
-%     hold on
-%     plot(time_step,Omega3,'-b','LineWidth',2,'displayName','$\Omega$')
-%     plot(time_step,delta_D_r3,'-r','LineWidth',2,'displayName','$\delta$')
-%     grid on
-%     xlabel('Time [s]')
-%     ylabel('rad/s')
-%     legend('location','northeast','fontSize', 20);
-%     pbaspect([1 1 1]) 
-%     ax(6).YAxis.Exponent=-1;
-%     set([ax(4),ax(5),ax(6)],'XTick',0:200:1000)
-%     set(ax,'FontSize',15)
-%     linkaxes([ax(4),ax(5),ax(6)],'xy')    
-%     
-%     hold off
-%     set(ax(1),'position',[.0 .55 .35 .35])
-%     set(ax(2),'position',[.2 .55 .35 .35])
-%     set(ax(3),'position',[0.4 .55 .35 .35])
-%     set(ax(4),'position',[.0 .1 .35 .35])
-%     set(ax(5),'position',[.2 .1 .35 .35])
-%     set(ax(6),'position',[.4 .1 .35 .35])
-%     exportgraphics(gcf,sprintf(output_file,q,q,'b'),'ContentType','vector')
-%     clear ax
+    % ------------------
+    %% Plot vehicle path
+    % ------------------
+    N = length(time_sim);
+    set(gca,'fontsize',16)
+    figure('Name','Real Vehicle Path','NumberTitle','off'), clf
+    plot(x_CoM,y_CoM,'Color',color('gold'),'LineWidth',2)
+    for i = 1:floor(N/20):N
+        hold on
+        rot_mat = [cos(psi(i)) -sin(psi(i)) ; sin(psi(i)) cos(psi(i))];
+        pos_rr = rot_mat*[-Lr -Wr/2]';
+        pos_rl = rot_mat*[-Lr +Wr/2]';
+        pos_fr = rot_mat*[+Lf -Wf/2]';
+        pos_fl = rot_mat*[+Lf +Wf/2]';
+        pos = [pos_rr pos_rl pos_fl pos_fr];
+        p = patch(x_CoM(i) + pos(1,:),y_CoM(i) + pos(2,:),'blue');
+        quiver(x_CoM(i), y_CoM(i), u(i)*cos(psi(i)), u(i)*sin(psi(i)), 'color', [1,0,0]);
+        quiver(x_CoM(i), y_CoM(i), -v(i)*sin(psi(i)), v(i)*cos(psi(i)), 'color', [0.23,0.37,0.17]);
+    end
+    grid on
+    hold off
+    axis equal
+    xlabel('x-coord [m]')
+    ylabel('y-coord [m]')
+    pbaspect([1 1 1])
+    exportgraphics(gcf,sprintf(output_file,q,q,'m'),'ContentType','vector')
 end
     

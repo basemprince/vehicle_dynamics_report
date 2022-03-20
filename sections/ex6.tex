@@ -3,26 +3,26 @@
 \section{Exercise 1 - lateral control}
 \textbf{Q. Optimize the clothoid-based lateral controller}
 
-The clothoid-based lateral controller uses Equation \ref{eq:6.1} to calculate the steering angle required to follow the clothid. The under-steering gradient $\kus$ was calculated previously using the handling diagram and the results were shown in Table \ref{tab:6.1} and Figure \ref{64d1}. These results were implemented as a variable that changes based on the vehicle's current speed.
+The clothoid-based lateral controller uses Equation \ref{eq:6.1} to calculate the steering angle required to follow the clothid. The under-steering gradient $\kus$ was calculated previously using the handling diagram shown in Table \ref{tab:5.1}. These results were implemented as a variable that changes based on the vehicle's current speed.
 
 \begin{equation}\label{eq:6.1}
 \delta(s) = k(s) (L + \kus u^2)
 \end{equation}
 
-To optimize the clothoid-based lateral controller look ahead variable, several tests were conducted using the following variables totalling 42 tests in total:
+To optimize the clothoid-based lateral controller look ahead variable, several tests were conducted using the following variables totalling 42 tests:
 
 \begin{itemize}
     \item $u$ = [10, 20, 30, 40, 50, 60, 70, 80] km/h
     \item look ahead = [5, 10, 15, 20, 25, 30]
 \end{itemize}
 
-The tracking error had to be calculated to compare the tests' results. That was done by using the ``N-D nearest point search" function in Matlab, which returns indices of closest points in the desired path for each point on the real path. Then calculating the euclidean distance between each point in the real path and closest point on the desired path as tracking error. The results are shown in Figure \ref {64d1} and Table \ref{tab:6.1}.
+The tracking error had to be calculated to compare the tests' results. That was done by using the ``N-D nearest point search" function in Matlab, which returns indices of closest points in the desired path for each point on the real path. Then calculating the euclidean distance between each point in the real path and closest point on the desired path as tracking error. The results are shown in Figure \ref{64d1-4} and Table \ref{tab:6.1}.
         
         \begin{figure}[ht]
-        \includegraphics[width=0.6\linewidth]{ex6/q1/ex-61a.eps}
+        \includegraphics[width=0.6\linewidth]{ex6/q1/ex-61a-4.eps}
         \centering
         \caption{clothoid-based lateral controller at different $u$ and look ahead}
-        \label{64d1}
+        \label{64d1-4}
         \end{figure}
       
 The tests checked if the vehicle was able to arrive at a designated target point chosen to be at [60,10]. If the vehicle reaches this point within a threshold of 5 meters, the test is considered a success.
@@ -35,8 +35,8 @@ The tests checked if the vehicle was able to arrive at a designated target point
       30 &  \cellcolor{green!10}\num{0.163715271} &	\num{0.431919243} &	\num{0.941254925} &	\num{1.632800857} &	\num{2.454559877} &	\num{3.408670041}\\\hline
       40 &  \cellcolor{green!10}\num{0.225603124} & \num{0.361992743}	& \num{0.728903508} &	\num{1.387858567} &	\num{2.228111216} &	\num{3.252073013}  \\\hline
       50 & \cellcolor{red!10}NA & \num{9.077008353} & \num{1.421928047} & \cellcolor{green!10}\num{0.718803621} &	\num{1.593478851} & \num{2.81030173} \\\hline
-      60 &  \cellcolor{red!10}NA & \num{12.14781879} &	\num{8.667722795}	& \cellcolor{green!10}\num{6.971058339} & \num{10.36814129} & \num{13.42289353} \\\hline
-      70 &  \num{14.15735028} & \num{23.03289356} & \cellcolor{red!10}NA & \cellcolor{red!10}NA & \num{48.50853335} & \cellcolor{green!10}\num{50.47894141}
+      60 &  \cellcolor{red!10}NA & \num{12.14781879} &	\num{8.667722795}	& \cellcolor{green!10}\num{3.2567} & \num{5.819637} & \num{9.074008} \\\hline
+      70 &  \num{14.15735028} & \num{23.03289356} & \cellcolor{red!10}NA & \cellcolor{red!10}NA & \num{4.14466} & \cellcolor{green!10}\num{4.4459637}
 
     \end{tabular}
     \caption{Tracking error results [clothoid-based lateral controller]}
@@ -70,3 +70,47 @@ No values of look ahead was enough to stabilize the vehicle with any speed highe
         \end{figure}
 
 \textbf{Q. Implement the pure pursuit controller and optimize the look ahead distance}      
+
+Pure pursuit calculates the circular arc radius $R$ between center of the vehicle's rear wheel $P_{V}$ and the target point on the desired path $P_{D}$. Equation \ref{eq:6.2} is used to calculate $R$, where $x_{D} $ and $y_{D}$ are $P_{D}$ expressed in the vehicle's frame. $R$ is later used to calculate the required steering angle $\delta$.
+
+\begin{equation}\label{eq:6.2}
+R = \frac{\sqrt{x_{D}^2 + y_{D}^2}}{2 sin(\lambda)} \quad\mathrm{and}\quad \delta = arctan(L/R)
+\end{equation}
+
+To optimize the pure pursuit lateral controller look ahead variable, several tests were conducted using the following variables totalling 64 tests:
+
+\begin{itemize}
+    \item $u$ = [20, 30, 40, 50, 60, 70, 80, 90, 100] km/h
+    \item look ahead = [1, 2, 3, 4, 5, 10, 15, 20, 25, 30]
+\end{itemize}
+
+The tracking error was calculated in the same manner as previous and some of the results are shown in Figure \ref{64d1-1} and Table \ref{tab:6.2}. The effect of the look ahead variable on the pure pursuit controller behaviour is similar to the clothoid-based controller. With higher speeds, larger look ahead values are required.
+        \begin{figure}[ht]
+        \includegraphics[width=0.6\linewidth]{ex6/q1/ex-61a-1.eps}
+        \centering
+        \caption{pure pursuit lateral controller at different $u$ and look ahead}
+        \label{64d1-1}
+        \end{figure}
+
+Overall, the pure pursuit controller performed well. Table \ref{tab:6.2} shows some of the tests conducted and their tracking error. The red colored cells indicate the vehicle was not able to arrive at the target point, while the green cells are the best performers for each speed $u$. A look-up table can now be used to choose the correct look ahead based on current speed.
+
+\begin{table}[ht!]
+    \centering
+    \begin{tabular}{c | c | c| c | c | c | c }
+      \textbf{$u$ [km/h]} & \textbf{LA = 3} & \textbf{LA = 10} & \textbf{LA = 15} & \textbf{LA = 20} & \textbf{LA = 25} & \textbf{LA = 30} \\ \hline
+      20 &  \cellcolor{green!10}\num{0.15701634}	& \num{1.38655343370175}	& \num{2.28521601614137} &	\num{2.99241619033646}	& \num{3.50457830899544}	& \num{4.04388716317479}   \\\hline
+      40 &  \cellcolor{green!10}\num{0.421531992855134} &	\num{1.09345663752179} &	\num{2.09288764822395} &	\num{2.81201383670761} &	\num{3.29243914385271} &	\num{3.98893358402656}\\\hline
+      60 &  \num{12.8998008129613} & \cellcolor{green!10}\num{2.38696471474345}	& \num{1.91247858082015} &	\num{2.62502875192359} &	\num{3.25986239209737} &	\num{3.85612670950654}  \\\hline
+      80 & \cellcolor{red!10}NA & \cellcolor{red!10}NA & \num{3.04972335309587} & \cellcolor{green!10}\num{2.91929663191553} &	\num{3.30190280050397} & \num{3.94574554579404} \\\hline
+      100 &  \cellcolor{red!10}NA & \cellcolor{red!10}NA &	\cellcolor{red!10}NA & \cellcolor{green!10}\num{4.01738096688633} & \num{4.13204864464811} & \num{4.34354358822183} \\\hline
+
+    \end{tabular}
+    \caption{Tracking error results [pure pursuit lateral controller]}
+    \label{tab:6.2}
+\end{table}
+
+\textbf{Q. evaluate the performance of the Stanley kinematic and dynamic controllers}
+
+\textbf{Q. Compare the performance of the lateral controllers}
+
+The pure pursuit controller performed significantly better than clothoid-based. It was capable of maintaining stability at much higher speeds. Pure pursuit was able to achieve target up to 130 km/hr, while clothoid-based controller had trouble with any speed over 70 km/hr. Furthermore, pure pursuit requires one less hyper-parameter to tune.

@@ -12,6 +12,7 @@
 \usepackage[table,xcdraw]{xcolor}
 \usepackage{siunitx}
 \usepackage[table]{xcolor}
+\usepackage{array}
 
 \sisetup{scientific-notation=true,round-mode=places,round-precision=1}
 
@@ -25,7 +26,8 @@
 \fancyhead[R]{}
 \fancyhead[L]{Assignment \thechapter\ --\ \leftmark}
 
-  
+\newcommand{\tabitem}{~~\llap{\textbullet}~~}
+
 \graphicspath{{./images/}}
 \include{include/shortcuts}
 \DeclareUnicodeCharacter{2212}{-}
@@ -53,11 +55,12 @@
 
 \includeonly{
 sections/ex1,
-% sections/ex2,
-% sections/ex3,
-% sections/ex4,
-% sections/ex5,
-sections/ex6
+sections/ex2,
+sections/ex3,
+sections/ex4,
+sections/ex5,
+sections/ex6,
+sections/ex7
 }
 \begin{document}
 \begin{titlepage}
@@ -86,6 +89,7 @@ sections/ex6
     \end{center}
 \end{titlepage}
 
+\
 \tableofcontents
 
 \include{sections/ex1}
@@ -94,7 +98,7 @@ sections/ex6
 \include{sections/ex4}
 \include{sections/ex5}
 \include{sections/ex6}
-
+\include{sections/ex7}
 % \printbibliography %
 
 \end{document}

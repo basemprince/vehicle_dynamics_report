@@ -34,4 +34,3 @@ function stanleyParams = stanleyControllerParams(max_steer, gain)
     stanleyParams.cornerStiff = 26285;  % [N/rad]
 
 end
-

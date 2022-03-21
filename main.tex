@@ -13,6 +13,9 @@
 \usepackage{siunitx}
 \usepackage[table]{xcolor}
 \usepackage{array}
+\usepackage{hyperref}
+
+\hypersetup{colorlinks=true, linktoc=all, linkcolor=black}
 
 \sisetup{scientific-notation=true,round-mode=places,round-precision=1}
 
@@ -89,8 +92,10 @@ sections/ex7
     \end{center}
 \end{titlepage}
 
-\
+
+\renewcommand{\baselinestretch}{0.75}\normalsize
 \tableofcontents
+\renewcommand{\baselinestretch}{1.25}\normalsize
 
 \include{sections/ex1}
 \include{sections/ex2}

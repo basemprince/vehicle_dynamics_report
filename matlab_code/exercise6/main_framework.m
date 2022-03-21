@@ -20,10 +20,46 @@ q = 1;
 
 const_speed = true;
 freq = 0.001; % 1/s
-req_speeds = [20,30,40,50,60,70,80,90,100];
+req_speeds = [
+%     20,
+    30,
+%     40,
+%     50,
+%     60,
+    70,
+%     80,
+%     90,
+%     100
+    ];
 req_speeds_k = req_speeds;
 req_speeds = req_speeds/3.6;
-look_ahead_list = [1,2,3,4,5,10,15,20,25,30]; %[5,10,15,20,25,30];
+% look_ahead_list = [3,10,15,20,25,30];
+look_ahead_list = [5,30];
+% look_ahead_list = [1,2,3,4,5,10,15,20,25,30];
+% for kinematic
+% s_k_tests = {
+%     {[6],[0.1,0.5,1]}, % 20
+%     {[6],[0.1,0.5,1]}, % 30
+%     {[6],[0.1,0.5,1]}, % 40
+%     {[6],[0.1,0.5,1]}, % 50
+%     {[6],[0.1,0.5,1]}, % 60
+%     {[5],[0.1,0.5]}, % 70
+%     {[4],[0.1]}, % 80
+%     {[3],[0.1,0.5]}, % 90
+%     {[2],[0.1,0.5,1]}, % 100
+% };
+% for dynamic
+s_k_tests = {
+%     {[6],[0.1,0.5,1]}, % 20
+    {[6],[0.5]}, % 30
+%     {[6],[0.1,0.5,1]}, % 40
+%     {[6],[0.1,0.5,1]}, % 50
+%     {[6],[0.1]}, % 60
+    {[5],[0.1]}, % 70
+%     {[4],[0.1,0.5,1]}, % 80
+%     {[4],[0.1,0.5,1]}, % 90
+%     {[3],[0.1,0.5,1]}, % 100
+};
 if const_speed
     init_speeds = req_speeds;
     init_speeds_k = req_speeds_k;
@@ -66,8 +102,8 @@ Tf = simulationPars.times.tf;         % stop time of the simulation
 LLC = load_LowLevelControlData();
 LLC_sampleTime = LLC.sample_time;
 clothoidBasedParams = clothoidBasedControllerParams(0,0);
-stanleyParams       = stanleyControllerParams();
-
+stanleyParams       = stanleyControllerParams(0.5,0.5);
+purePursuitParams   = purePursuitControllerParams(0);
 
 % ----------------------------------------------------------------
 %% Select the desired lateral controller
@@ -80,7 +116,7 @@ stanleyParams       = stanleyControllerParams();
 %   o latContr_select = 3 --> Stanley dynamic
 %   o latContr_select = 4 --> clothoid-based
 % -------------------
-latContr_select = 1;
+latContr_select = 4;
 
 % ----------------------------
 %% Load road scenario
@@ -119,23 +155,13 @@ for ind=1:length(req_speeds)
     speed_req_k = req_speeds_k(ind);
     init_speed = init_speeds(ind);
     init_speed_k = init_speeds_k(ind);
-    if latContr_select == 4
-        kus = kus_table(round(kus_table(:,1))==init_speed_k,2);
-    end
     X0(4) = init_speed;
     
-    for ind2 = 1: length(look_ahead_list)
-
-        look_ahead = look_ahead_list(ind2);
-        if (speed_req_k ==70 &&  look_ahead < 15) || (speed_req_k ==80 &&  look_ahead < 15) || (speed_req_k >=90 &&  look_ahead < 20)
-            int = 1
-        else
+    if latContr_select ==2 || latContr_select ==3
+        for ind2 = 1: length(s_k_tests{ind}{2}) %at specific gain
             total = total +1;
-            if latContr_select == 4
-                clothoidBasedParams = clothoidBasedControllerParams(kus,look_ahead);
-            end
-            purePursuitParams   = purePursuitControllerParams(look_ahead);
-            fprintf('Starting Simulation # %d [%d km/h] w/ look_ahead %d\n', total, round(speed_req*3.6),look_ahead);
+            stanleyParams = stanleyControllerParams(s_k_tests{ind}{1},s_k_tests{ind}{2}(ind2));          
+            fprintf('Starting Simulation # %d [%d km/h] w/ max steer %d , gain %f \n', total ,speed_req_k, s_k_tests{ind}{1},s_k_tests{ind}{2}(ind2));
             tic;
             % Simulink simulation
             model_sim = sim('framework_sim.slx');
@@ -143,7 +169,40 @@ for ind=1:length(req_speeds)
             total_simul_time = toc; 
             fprintf('Simulation completed\n')
             fprintf('The total simulation time was %.1f seconds\n',total_simul_time)
-            error_data{total} = dataAnalysis(model_sim,vehicle_data,Ts,road_data_sampled,speed_req_k,look_ahead);
+            error_data{total} = dataAnalysis(model_sim,vehicle_data,Ts,road_data_sampled,speed_req_k,s_k_tests{ind}{2}(ind2));
+        end
+    end    
+    
+    if latContr_select ==1 || latContr_select == 4
+        if latContr_select == 4
+            kus = kus_table(round(kus_table(:,1))==init_speed_k,2);
+        end
+        if latContr_select == 2
+            look_ahead_list = [1];
+        end
+        for ind2 = 1: length(look_ahead_list)
+
+            look_ahead = look_ahead_list(ind2);
+            if latContr_select == 1 && ((speed_req_k ==70 &&  look_ahead < 15) || (speed_req_k ==80 &&  look_ahead < 15) || (speed_req_k >=90 &&  look_ahead < 20))
+                int = 1
+            elseif latContr_select == 4 && ((speed_req_k ==70 &&  look_ahead == 15) || (speed_req_k ==80 &&  look_ahead < 20) || (speed_req_k >=90 &&  look_ahead < 20))
+                int = 1
+            else
+                total = total +1;
+                if latContr_select == 4
+                    clothoidBasedParams = clothoidBasedControllerParams(kus,look_ahead);
+                end       
+                purePursuitParams   = purePursuitControllerParams(look_ahead);
+                fprintf('Starting Simulation # %d [%d km/h] w/ look_ahead %d\n', total, round(speed_req*3.6),look_ahead);
+                tic;
+                % Simulink simulation
+                model_sim = sim('framework_sim.slx');
+                model_sims{total} = model_sim;
+                total_simul_time = toc; 
+                fprintf('Simulation completed\n')
+                fprintf('The total simulation time was %.1f seconds\n',total_simul_time)
+                error_data{total} = dataAnalysis(model_sim,vehicle_data,Ts,road_data_sampled,speed_req_k,look_ahead);
+            end
         end
     end
 end
@@ -172,16 +231,19 @@ end
     writetable(T,'error_speed_lookahead_table_pure.csv');
     
     %% bar graph for tracking error [clothoid]
-    la_to_plot = [3,10,15,20,25,30];
-%     la_to_plot = look_ahead_list;
-    s_to_plot = [20,40,60,80,100];
-%     s_to_plot = req_speeds_k;
+%     la_to_plot = [3,10,15,20,25,30];
+%     la_to_plot = [5,10,15,20,25,30];
+%     la_to_plot = [0.1,0.5,1];
+    la_to_plot = look_ahead_list;
+%     s_to_plot = [20,40,60,80,100];
+    s_to_plot = req_speeds_k;
     pivot_table = zeros(length(s_to_plot),length(la_to_plot)+1);
+    check_reached = false;
     for k =1:length(s_to_plot)
         pivot_table(k,1) = s_to_plot(k);
         for j =1:length(la_to_plot)
             for i = 1:length(error_data)
-                if error_data{i}.reached_flag
+                if error_data{i}.reached_flag || ~check_reached
                     if error_data{i}.speed == s_to_plot(k)
                         if error_data{i}.look_ahead == la_to_plot(j)
                             pivot_table(k,j+1) = error_data{i}.e_max;
@@ -193,7 +255,15 @@ end
     end
     %% bar graph
     % flipud(winter(7)
-    set(0,'DefaultAxesColorOrder',parula(7))
+    if latContr_select ==1 || latContr_select == 4
+        leg_name = 'look ahead [m]';
+    else
+        leg_name = 'gain value';
+    end
+    figure('Name','Tracking error','NumberTitle','off'); clf;
+    
+    set(0,'DefaultAxesColorOrder',parula(length(la_to_plot)))
+    
     bar(pivot_table(:,1),pivot_table(:,2:end));
     grid on
     xlabel('vehicle speed (u) [$km/h$]')
@@ -204,6 +274,28 @@ end
     set(gca,'fontsize',26)
     hleg = legend(string(la_to_plot),'location','NW');
     htitle = get(hleg,'Title');
-    set(htitle,'String','look ahead [m]')
+    set(htitle,'String',leg_name)
+
     pbaspect([1 1 1])
+%     string_t1 = {'20-60 km/h','70    km/h','80    km/h','90    km/h','100   km/h'};
+%     string_t2 = {'6','5','4','3','2'};
+    string_t1 = {'20-70 km/h','80-90 km/h','100   km/h'};
+    string_t2 = {'6','4','3'};
+    t1 = annotation('textbox', [0.2915, 0.57, 0.1, 0.1],'String', 'Max Steer');
+    t1.BackgroundColor = 'w';
+    t1.HorizontalAlignment = 'center';
+    t1.FontName = 'FixedWidth';
+    t1.FontSize = 17;
+    t2 = annotation('textbox', [0.2737, 0.5159, 0.1, 0.1],'String', string_t1);
+    t2.BackgroundColor = 'w';
+    t2.FontName = 'FixedWidth';
+    t2.FontSize = 12;
+    t3 = annotation('textbox', [0.3440, 0.5159, 0.1, 0.1],'String', string_t2);
+    t3.BackgroundColor = 'w';
+    t3.HorizontalAlignment = 'center';
+    t3.FontName = 'FixedWidth';
+    t3.FontSize = 12;
     exportgraphics(gcf,sprintf(output_file,q,q,'a',latContr_select),'ContentType','vector')
+
+%% trial
+

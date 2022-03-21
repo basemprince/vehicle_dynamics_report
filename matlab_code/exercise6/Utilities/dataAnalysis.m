@@ -1,6 +1,6 @@
 function [error_central] = dataAnalysis(model_sim,vehicle_data,Ts,road_data_sampled,speed_req_k,look_ahead)
 
-
+    plot_path = true;
     % ----------------------------------------------------------------
     %% Post-Processing and Data Analysis
     % ----------------------------------------------------------------
@@ -201,48 +201,48 @@ function [error_central] = dataAnalysis(model_sim,vehicle_data,Ts,road_data_samp
 %     % ---------------------
 %     %% Plot steering angles
 %     % ---------------------
-%     figure('Name','steer','NumberTitle','off'), clf   
-%     % --- delta_0 --- %
-%     ax(1) = subplot(221);
-%     plot(time_sim,delta_D,'b','LineWidth',2)
-%     grid on
-%     ylabel('$\delta_0$ [deg]')
-%     xlim([0 time_sim(end)])
-%     xlabel('Time (s)')
-%     pbaspect([1 1 1]);
-%     % --- delta_fr --- %
-%     ax(2) = subplot(222);
-%     plot(time_sim,delta_fr,'b','LineWidth',2)
-%     grid on
-%     ylabel('$\delta_{fr}$ [rad]')
-%     xlim([0 time_sim(end)])
-%     xlabel('Time (s)')
-%     pbaspect([1 1 1]);
-%     % --- delta_fl --- %
-%     ax(3) = subplot(223);
-%     plot(time_sim,delta_fl,'b','LineWidth',2)
-%     grid on
-%     ylabel('$\delta_{fl}$ [rad]')
-%     xlim([0 time_sim(end)])
-%     xlabel('Time (s)')
-%     pbaspect([1 1 1]);
-%     % --- comparison --- %
-%     ax(4) = subplot(224);
-%     plot(time_sim,rad2deg(delta_D)/tau_D,'b','LineWidth',2,'displayName','$\delta_D/\tau_D$')
-%     hold on
-%     plot(time_sim,delta_fr,'r','LineWidth',2,'displayName','$\delta_{fr}$')
-%     plot(time_sim,delta_fl,'m','LineWidth',2,'displayName','$\delta_{fl}$')
-%     hold off
-%     grid on
-%     legend('location','northeast')
-%     xlim([0 time_sim(end)])
-%     ylabel('$\delta$ [rad]');
-%     xlabel('Time (s)')
-%     pbaspect([1 1 1]);
-%     set(ax(1),'position',[.0 .55 .35 .35])
-%     set(ax(2),'position',[.0 .1 .35 .35])
-%     set(ax(3),'position',[.25 .55 .35 .35])
-%     set(ax(4),'position',[.25 .1 .35 .35])
+    figure('Name','steer','NumberTitle','off'), clf   
+    % --- delta_0 --- %
+    ax(1) = subplot(221);
+    plot(time_sim,delta_D,'b','LineWidth',2)
+    grid on
+    ylabel('$\delta_0$ [deg]')
+    xlim([0 time_sim(end)])
+    xlabel('Time (s)')
+    pbaspect([1 1 1]);
+    % --- delta_fr --- %
+    ax(2) = subplot(222);
+    plot(time_sim,delta_fr,'b','LineWidth',2)
+    grid on
+    ylabel('$\delta_{fr}$ [rad]')
+    xlim([0 time_sim(end)])
+    xlabel('Time (s)')
+    pbaspect([1 1 1]);
+    % --- delta_fl --- %
+    ax(3) = subplot(223);
+    plot(time_sim,delta_fl,'b','LineWidth',2)
+    grid on
+    ylabel('$\delta_{fl}$ [rad]')
+    xlim([0 time_sim(end)])
+    xlabel('Time (s)')
+    pbaspect([1 1 1]);
+    % --- comparison --- %
+    ax(4) = subplot(224);
+    plot(time_sim,rad2deg(delta_D)/tau_D,'b','LineWidth',2,'displayName','$\delta_D/\tau_D$')
+    hold on
+    plot(time_sim,delta_fr,'r','LineWidth',2,'displayName','$\delta_{fr}$')
+    plot(time_sim,delta_fl,'m','LineWidth',2,'displayName','$\delta_{fl}$')
+    hold off
+    grid on
+    legend('location','northeast')
+    xlim([0 time_sim(end)])
+    ylabel('$\delta$ [rad]');
+    xlabel('Time (s)')
+    pbaspect([1 1 1]);
+    set(ax(1),'position',[.0 .55 .35 .35])
+    set(ax(2),'position',[.0 .1 .35 .35])
+    set(ax(3),'position',[.25 .55 .35 .35])
+    set(ax(4),'position',[.25 .1 .35 .35])
 % %     exportgraphics(gcf,sprintf(output_file,q,q,'c'),'ContentType','vector')
 %     
 %     
@@ -700,42 +700,42 @@ function [error_central] = dataAnalysis(model_sim,vehicle_data,Ts,road_data_samp
     % ------------------
     %% Plot vehicle path
     % ------------------
-
-%     name = append('speed: ', string(speed_req_k),', look ahead: ', string(look_ahead));
-%     cut_off = find(x_CoM>=240,1,'first');
-%     if ~isempty(cut_off)
-%         x_CoM = x_CoM(1:cut_off);
-%         y_CoM = y_CoM(1:cut_off);        
-%     end
-%     real_path = [x_CoM,y_CoM];
-%     N = length(x_CoM);
-%     hh = figure('Name',name,'NumberTitle','off'); clf;
-% %     set(hh, 'Visible', 'off');
-%     h1 = plot(x_CoM,y_CoM,'Color',color('gold'),'LineWidth',2,'displayName','real path');
-%     hold on
-%     title(name);
-%     h2 = plot(road_data_sampled(:,1),road_data_sampled(:,2),'-b','displayName','target path');
-%     for i = 1:floor(N/20):N
-%         rot_mat = [cos(psi(i)) -sin(psi(i)) ; sin(psi(i)) cos(psi(i))];
-%         pos_rr = rot_mat*[-Lr -Wr/2]';
-%         pos_rl = rot_mat*[-Lr +Wr/2]';
-%         pos_fr = rot_mat*[+Lf -Wf/2]';
-%         pos_fl = rot_mat*[+Lf +Wf/2]';
-%         pos = [pos_rr pos_rl pos_fl pos_fr];
-%         p = patch(x_CoM(i) + pos(1,:),y_CoM(i) + pos(2,:),'blue');
-%         quiver(x_CoM(i), y_CoM(i), u(i)*cos(psi(i)), u(i)*sin(psi(i)), 'color', [1,0,0]);
-%         quiver(x_CoM(i), y_CoM(i), -v(i)*sin(psi(i)), v(i)*cos(psi(i)), 'color', [0.23,0.37,0.17]);
-%     end
-%     grid on
-%     hold off
-%     set(gca,'fontsize',26)
-%     axis equal
-%     legend([h1,h2],'location','northeast');
-%     xlabel('x-coord [m]')
-%     ylabel('y-coord [m]')
-%     pbaspect([1 1 1])
-%     exportgraphics(gcf,sprintf(output_file,q,q,'m'),'ContentType','vector')
-    
+    if plot_path
+        name = append('speed: ', string(speed_req_k),', look ahead: ', string(look_ahead));
+        cut_off = find(x_CoM>=240,1,'first');
+        if ~isempty(cut_off)
+            x_CoM = x_CoM(1:cut_off);
+            y_CoM = y_CoM(1:cut_off);        
+        end
+        real_path = [x_CoM,y_CoM];
+        N = length(x_CoM);
+        hh = figure('Name',name,'NumberTitle','off'); clf;
+    %     set(hh, 'Visible', 'off');
+        h1 = plot(x_CoM,y_CoM,'Color',color('gold'),'LineWidth',2,'displayName','real path');
+        hold on
+        title(name);
+        h2 = plot(road_data_sampled(:,1),road_data_sampled(:,2),'-b','displayName','target path');
+        for i = 1:floor(N/20):N
+            rot_mat = [cos(psi(i)) -sin(psi(i)) ; sin(psi(i)) cos(psi(i))];
+            pos_rr = rot_mat*[-Lr -Wr/2]';
+            pos_rl = rot_mat*[-Lr +Wr/2]';
+            pos_fr = rot_mat*[+Lf -Wf/2]';
+            pos_fl = rot_mat*[+Lf +Wf/2]';
+            pos = [pos_rr pos_rl pos_fl pos_fr];
+            p = patch(x_CoM(i) + pos(1,:),y_CoM(i) + pos(2,:),'blue');
+            quiver(x_CoM(i), y_CoM(i), u(i)*cos(psi(i)), u(i)*sin(psi(i)), 'color', [1,0,0]);
+            quiver(x_CoM(i), y_CoM(i), -v(i)*sin(psi(i)), v(i)*cos(psi(i)), 'color', [0.23,0.37,0.17]);
+        end
+        grid on
+        hold off
+        set(gca,'fontsize',26)
+        axis equal
+        legend([h1,h2],'location','northeast');
+        xlabel('x-coord [m]')
+        ylabel('y-coord [m]')
+        pbaspect([1 1 1])
+    %     exportgraphics(gcf,sprintf(output_file,q,q,'m'),'ContentType','vector')
+    end
 
     % -------------------------------
     %% Error Calculations
@@ -782,4 +782,8 @@ function [error_central] = dataAnalysis(model_sim,vehicle_data,Ts,road_data_samp
     error_central.e_min = min(e_cum);
     error_central.e_mean = mean(e_cum);
     error_central.e_std = std(e_cum);
+    error_central.delta_fr = delta_fr;
+    error_central.delta_fl = delta_fl;
+    error_central.time_sim = time_sim;
+    
     

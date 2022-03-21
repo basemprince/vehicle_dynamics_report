@@ -6,6 +6,9 @@ clc
 clearvars 
 close all   
 
+output_file = 'graphs/ex-2%d%s.eps';
+q = 1;   
+
 % Set LaTeX as default interpreter for axis labels, ticks and legends
 set(0,'defaulttextinterpreter','latex')
 set(groot, 'defaultAxesTickLabelInterpreter','latex');
@@ -32,30 +35,49 @@ disp(tireid)
 figure (1), clf
 % long slip %
 ax(1) = subplot(511);
-plot(SL,'LineWidth',2)
+plot(SL,'-b','LineWidth',2)
 grid on
+ax(1).YAxis.Exponent=-1;
+xlim([0 3.83e4])
 title('Longitudinal Slip $\kappa$')
 % slip angle %
 ax(2) = subplot(512);
-plot(SA,'LineWidth',2)
+plot(SA,'-b','LineWidth',2)
 grid on
+xlim([0 3.83e4])
 title('Slip Angle $\alpha$ [deg]')
 % camber %
 ax(3) = subplot(513);
-plot(IA,'LineWidth',2)
+xlim([0 3.83e4])
+plot(IA,'-b','LineWidth',2)
 grid on
+xlim([0 3.83e4])
 title('Camber $\gamma$ [deg]')
 % Fz %
 ax(4) = subplot(514);
-plot(FZ,'LineWidth',2)
+plot(FZ,'-b','LineWidth',2)
+ax(4).YAxis.Exponent=2;
+xlim([0 3.83e4])
 grid on
 title('$F_z$ [N]')
 %pressure %
 ax(5) = subplot(515);
-plot(P,'LineWidth',2)
+plot(P,'-b','LineWidth',2)
+ax(5).YAxis.Exponent=1;
+xlim([0 3.83e4])
 grid on
 title('Pressure [kPa]')
-print -depsc graphs/ex-21.eps
+
+y_space = 0.15
+y_hight = 0.073
+x_hight = 0.85
+set(ax(1),'position',[.13 .85 x_hight y_hight])
+set(ax(2),'position',[.13 .85-(y_space) x_hight y_hight])
+set(ax(3),'position',[.13 .85-(y_space*2) x_hight y_hight])
+set(ax(4),'position',[.13 .85-(y_space*3) x_hight y_hight])
+set(ax(5),'position',[.13 .85-(y_space*4) x_hight y_hight])
+
+exportgraphics(gcf,'graphs/ex-21.eps','ContentType','vector');
 
 %% Organize the data
 %   create a vector of idxs dividing the dataset by parameters

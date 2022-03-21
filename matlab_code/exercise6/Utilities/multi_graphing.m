@@ -1,6 +1,12 @@
 function multi_graphing(model_sims,handling_datas,vehicle_data,Ts)
 
     % ---------------------------------
+    %% plotting switches
+    % ---------------------------------
+    print_handling_diag = false;
+    superimpose = true;
+
+    % ---------------------------------
     %% Load vehicle data
     % ---------------------------------
     tau_D = vehicle_data.steering_system.tau_D;  % [-] steering system ratio (pinion-rack)
@@ -25,14 +31,6 @@ function multi_graphing(model_sims,handling_datas,vehicle_data,Ts)
         delta_D(:,ind) = model_sims{ind}.inputs.delta_D.data;
         x_CoM(:,ind) = model_sims{ind}.states.x.data;
         y_CoM(:,ind) = model_sims{ind}.states.y.data;                                                    
-%         u          = [model_sims{1}.states.u.data, model_sims{2}.states.u.data,model_sims{3}.states.u.data];
-%         v          = [model_sims{1}.states.v.data, model_sims{2}.states.v.data,model_sims{3}.states.v.data];
-%         psi        = [model_sims{1}.states.psi.data, model_sims{2}.states.psi.data,model_sims{3}.states.psi.data];
-%         Omega      = [model_sims{1}.states.Omega.data, model_sims{2}.states.Omega.data,model_sims{3}.states.Omega.data];
-%         delta      = [model_sims{1}.states.delta.data, model_sims{2}.states.delta.data,model_sims{3}.states.delta.data];
-%         delta_D    = [model_sims{1}.inputs.delta_D.data, model_sims{2}.inputs.delta_D.data,model_sims{3}.inputs.delta_D.data];
-%         x_CoM      = [model_sims{1}.states.x.data, model_sims{2}.states.x.data,model_sims{3}.states.x.data];
-%         y_CoM      = [model_sims{1}.states.y.data, model_sims{2}.states.y.data,model_sims{3}.states.y.data];
     end
     desired_steer_atWheel = delta_D/tau_D;
     delta_D_r = deg2rad(delta_D);
@@ -49,11 +47,9 @@ function multi_graphing(model_sims,handling_datas,vehicle_data,Ts)
     % ----------------
     %% For plot saving
     % ----------------
-    output_file = './graphs/q%d/ex-6%d%s.eps';
-    output_files = './graphs/q%d/ex-6%d%s%d.eps';
+    output_file = 'graphs/q%d/ex-6%d%s.eps';
+    output_files = 'graphs/q%d/ex-6%d%s%d.eps';
     q = 1;
-%     speeds = {'50 $km/h$','80 $km/h$','100 $km/h$'};
-%     deltas_fig = {'70$^\circ$','12$^\circ$','24$^\circ$'};
     speeds = {};
     deltas_fig = {};
     for ind = 1:length(model_sims)
@@ -91,56 +87,59 @@ function multi_graphing(model_sims,handling_datas,vehicle_data,Ts)
     % ------------------
     %% handling diagrams
     % ------------------
-%     delta_t = deg2rad(desired_steer_atWheel);       
-%     for ind = 1:length(handling_datas)
-%         figure('Name','Handling Diagram','NumberTitle','on'), clf
-%         hold on
-%         plot(Ay(:,ind),handling_datas{ind}.Y,'-b','LineWidth',2,'displayName','real')
-%         plot(Ay(:,ind),handling_datas{ind}.fitted_Y,'--r','LineWidth',2,'displayName','fitted')
-%         set(gca,'fontsize',16);%, 'XAxisLocation', 'origin','YAxisLocation', 'origin');
-%         grid on
-%         xlabel('$a_y [m^2 / s]$')
-%         ylabel('Y')
-%         legend('location','northeast','fontSize', 26);
-%         hold off
-%         pbaspect([1 1 1])
-%         set(gca,'FontSize',26)
-%         exportgraphics(gcf,sprintf(output_files,q,q,'b',ind),'ContentType','vector')
-%     end
-    
+    if (print_handling_diag)
+        delta_t = deg2rad(desired_steer_atWheel);       
+        for ind = 1:length(handling_datas)
+            figure('Name','Handling Diagram','NumberTitle','on'), clf
+            hold on
+            plot(Ay(:,ind),handling_datas{ind}.Y,'-b','LineWidth',2,'displayName','real')
+            plot(Ay(:,ind),handling_datas{ind}.fitted_Y,'--r','LineWidth',2,'displayName','fitted')
+            set(gca,'fontsize',16);%, 'XAxisLocation', 'origin','YAxisLocation', 'origin');
+            grid on
+            xlabel('$a_y [m^2 / s]$')
+            ylabel('Y')
+            legend('location','northeast','fontSize', 26);
+            hold off
+            pbaspect([1 1 1])
+            set(gca,'FontSize',26)
+            exportgraphics(gcf,sprintf(output_files,q,q,'b',ind),'ContentType','vector')
+        end
+    end
     % ---------------------------------
     %% handling diagrams [superimposed]
-    % ---------------------------------   
-    figure('Name','Fitted Handling Diagram','NumberTitle','off'), clf
-    col = 0;
-%     set(gca,'fontsize',16);%, 'XAxisLocation', 'origin','YAxisLocation', 'origin');
-    for ind = 1:2:length(handling_datas)-1
-%         col = col +1;
-%         if ind == 1
-%             sup = 31;
-%         elseif ind == 3
-%             sup = 3.5;
-%         else 
-%             sup =0;
-%         end
-%         plot(Ay(:,ind)*(length(handling_datas)-ind+sup),handling_datas{ind}.fitted_Y*(length(handling_datas)-ind+sup),color{col},'LineWidth',2,'displayName',append(speeds{ind},' - ', deltas_fig{ind}));
-        plot(Ay(:,ind),handling_datas{ind}.fitted_Y,color{col},'LineWidth',2,'displayName',append(speeds{ind},' - ', deltas_fig{ind}));      
-        hold on
+    % ---------------------------------  
+    if (superimpose)
+        figure('Name','Fitted Handling Diagram','NumberTitle','off'), clf
+        col = 0;
+    %     set(gca,'fontsize',16);%, 'XAxisLocation', 'origin','YAxisLocation', 'origin');
+        for ind = 1:2:length(handling_datas)-1
+    %         col = col +1;
+    %         if ind == 1
+    %             sup = 31;
+    %         elseif ind == 3
+    %             sup = 3.5;
+    %         else 
+    %             sup =0;
+    %         end
+    %         plot(Ay(:,ind)*(length(handling_datas)-ind+sup),handling_datas{ind}.fitted_Y*(length(handling_datas)-ind+sup),color{col},'LineWidth',2,'displayName',append(speeds{ind},' - ', deltas_fig{ind}));
+            plot(Ay(:,ind),handling_datas{ind}.fitted_Y,color{col},'LineWidth',2,'displayName',append(speeds{ind},' - ', deltas_fig{ind}));      
+            hold on
+        end
+        grid on
+        xlabel('$a_y [m^2 / s]$')
+        ylabel('Y')
+        hold off
+        legend('location','northeast','fontsize',23);
+        set(gca,'FontSize',26);
+    %     set(gca,'FontSize',26,'xtick',([-50 -40 -30 -20 -10 0 10 20 30 40 50]));
+        ax = gca();
+    %     ax.YAxis.Exponent=-1;
+        ax.YRuler.Exponent = -3;
+        xlim([-16 16])
+        ylim([-11e-3 11e-3])
+        pbaspect([1 1 1])
+        exportgraphics(gcf,sprintf(output_file,q,q,'d'),'ContentType','vector')
     end
-    grid on
-    xlabel('$a_y [m^2 / s]$')
-    ylabel('Y')
-    hold off
-    legend('location','northeast','fontsize',23);
-    set(gca,'FontSize',26);
-%     set(gca,'FontSize',26,'xtick',([-50 -40 -30 -20 -10 0 10 20 30 40 50]));
-    ax = gca();
-%     ax.YAxis.Exponent=-1;
-    ax.YRuler.Exponent = -3;
-    xlim([-16 16])
-    ylim([-11e-3 11e-3])
-    pbaspect([1 1 1])
-    exportgraphics(gcf,sprintf(output_file,q,q,'d'),'ContentType','vector')
     % ----------------
     %% Omega vs. Delta
     % ----------------
@@ -263,7 +262,7 @@ function multi_graphing(model_sims,handling_datas,vehicle_data,Ts)
 %     clear ax
 %     
     % ----------------
-    %% Coeffients print-out
+    %% print kus results out
     % ----------------
     format shortG
     m = zeros(length(handling_datas),2);
@@ -272,6 +271,6 @@ function multi_graphing(model_sims,handling_datas,vehicle_data,Ts)
         disp(handling_datas{ind}.coeffs);
         m(ind,:) = [handling_datas{ind}.speed*3.6 handling_datas{ind}.kus];
     end
-    writematrix(m,'kus.csv') 
+    writematrix(m,'results/kus.csv') 
 end
     

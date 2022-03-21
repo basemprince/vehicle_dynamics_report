@@ -1,17 +1,10 @@
-% ----------------------------------------------------------------
-%% Main script for self-driving vehicle control framework 
-%  authors: Mattia Piccinini & Gastone Pietro Papini Rosati
-%  emails:  mattia.piccinini@unitn.it, gastone.rosatipapini@unitn.it
-%  date:    26/11/2020
-% ----------------------------------------------------------------
-
 % ----------------------------
 %% Initialization
 % ----------------------------
 initialize_environment;
-load('kus');
-load('speed_look_result');
-output_file = './graphs/q%d/ex-6%d%s-%d.eps';
+load('results/kus');
+load('results/speed_look_result');
+output_file = 'graphs/q%d/ex-6%d%s-%d.eps';
 q = 1;   
 
 % ----------------------------
@@ -20,46 +13,36 @@ q = 1;
 
 const_speed = true;
 freq = 0.001; % 1/s
+% speeds to test
 req_speeds = [
-%     20,
+    20,
     30,
-%     40,
-%     50,
-%     60,
+    40,
+    50,
+    60,
     70,
-%     80,
+    80,
 %     90,
 %     100
     ];
 req_speeds_k = req_speeds;
 req_speeds = req_speeds/3.6;
-% look_ahead_list = [3,10,15,20,25,30];
-look_ahead_list = [5,30];
-% look_ahead_list = [1,2,3,4,5,10,15,20,25,30];
-% for kinematic
-% s_k_tests = {
-%     {[6],[0.1,0.5,1]}, % 20
-%     {[6],[0.1,0.5,1]}, % 30
-%     {[6],[0.1,0.5,1]}, % 40
-%     {[6],[0.1,0.5,1]}, % 50
-%     {[6],[0.1,0.5,1]}, % 60
-%     {[5],[0.1,0.5]}, % 70
-%     {[4],[0.1]}, % 80
-%     {[3],[0.1,0.5]}, % 90
-%     {[2],[0.1,0.5,1]}, % 100
-% };
-% for dynamic
+% look ahead to test
+look_ahead_list = [3,10,15,20,25,30];
+% combination testing for kinematic [steer angle, gain]
 s_k_tests = {
-%     {[6],[0.1,0.5,1]}, % 20
-    {[6],[0.5]}, % 30
-%     {[6],[0.1,0.5,1]}, % 40
-%     {[6],[0.1,0.5,1]}, % 50
-%     {[6],[0.1]}, % 60
-    {[5],[0.1]}, % 70
-%     {[4],[0.1,0.5,1]}, % 80
-%     {[4],[0.1,0.5,1]}, % 90
-%     {[3],[0.1,0.5,1]}, % 100
+    {[6],[0.1,0.5,1]}, % 20
+    {[6],[0.1,0.5,1]}, % 30
+    {[6],[0.1,0.5,1]}, % 40
+    {[6],[0.1,0.5,1]}, % 50
+    {[6],[0.1,0.5,1]}, % 60
+    {[5],[0.1,0.5]}, % 70
+    {[4],[0.1]}, % 80
+    {[3],[0.1,0.5]}, % 90
+    {[2],[0.1,0.5,1]}, % 100
 };
+
+% to set initial speed
 if const_speed
     init_speeds = req_speeds;
     init_speeds_k = req_speeds_k;
@@ -67,6 +50,7 @@ else
     init_speeds = [20,50]/3.6;
 end
 
+% for quick trials
 % speed_req = 70/3.6;
 % init_speed = speed_req;
 % kus = kus_table(round(kus_table(:,1))==init_speed_k,2);
@@ -147,16 +131,18 @@ end
 % ----------------------------
 %% Start Simulation
 % ----------------------------
+% to save simulation models and their error data
 model_sims = {};
 error_data = {};
 total = 0;
+% loop through all test speeds
 for ind=1:length(req_speeds)
     speed_req = req_speeds(ind);
     speed_req_k = req_speeds_k(ind);
     init_speed = init_speeds(ind);
     init_speed_k = init_speeds_k(ind);
     X0(4) = init_speed;
-    
+    % loop for stanly controllers
     if latContr_select ==2 || latContr_select ==3
         for ind2 = 1: length(s_k_tests{ind}{2}) %at specific gain
             total = total +1;
@@ -172,26 +158,24 @@ for ind=1:length(req_speeds)
             error_data{total} = dataAnalysis(model_sim,vehicle_data,Ts,road_data_sampled,speed_req_k,s_k_tests{ind}{2}(ind2));
         end
     end    
-    
+    % loop for clothoid and pure pursuit
     if latContr_select ==1 || latContr_select == 4
+        % set kus if clothoid controller
         if latContr_select == 4
             kus = kus_table(round(kus_table(:,1))==init_speed_k,2);
         end
-        if latContr_select == 2
-            look_ahead_list = [1];
-        end
-        for ind2 = 1: length(look_ahead_list)
-
+        for ind2 = 1: length(look_ahead_list) % loop through look ahead values
             look_ahead = look_ahead_list(ind2);
+            % if else statement to skip known tests that throws errors
             if latContr_select == 1 && ((speed_req_k ==70 &&  look_ahead < 15) || (speed_req_k ==80 &&  look_ahead < 15) || (speed_req_k >=90 &&  look_ahead < 20))
-                int = 1
             elseif latContr_select == 4 && ((speed_req_k ==70 &&  look_ahead == 15) || (speed_req_k ==80 &&  look_ahead < 20) || (speed_req_k >=90 &&  look_ahead < 20))
-                int = 1
             else
                 total = total +1;
+                % re-set clothoid params only if its chosen
                 if latContr_select == 4
                     clothoidBasedParams = clothoidBasedControllerParams(kus,look_ahead);
-                end       
+                end    
+                % re-set pure pursuit params
                 purePursuitParams   = purePursuitControllerParams(look_ahead);
                 fprintf('Starting Simulation # %d [%d km/h] w/ look_ahead %d\n', total, round(speed_req*3.6),look_ahead);
                 tic;
@@ -206,11 +190,9 @@ for ind=1:length(req_speeds)
         end
     end
 end
-% ----------------------------
-%% Post-Processing
-% ----------------------------
-
+% --------------------------------------
 %% speed / look-up combination vs. error
+% --------------------------------------
 
     format shortG
     error_speed_lookahead_table = zeros(length(error_data),7);
@@ -226,17 +208,26 @@ end
             error_data{i}.e_std];
     end
     
+    % to output results to csv
     T = array2table(error_speed_lookahead_table);
     T.Properties.VariableNames(1:7) = {'u','look_ahead','max_error','reached_flg','steps_to_finish','mean_error','std_error'};
-    writetable(T,'error_speed_lookahead_table_pure.csv');
+    output = 'results/error_results_table_%d.csv';
+    writetable(T,sprintf(output,latContr_select));
     
-    %% bar graph for tracking error [clothoid]
+% ------------------------------
+%% Data restructure for plotting
+% ------------------------------
+    % choose what to plot
+    la_to_plot = look_ahead_list;
+    s_to_plot = req_speeds_k;
+    
 %     la_to_plot = [3,10,15,20,25,30];
 %     la_to_plot = [5,10,15,20,25,30];
 %     la_to_plot = [0.1,0.5,1];
-    la_to_plot = look_ahead_list;
 %     s_to_plot = [20,40,60,80,100];
-    s_to_plot = req_speeds_k;
+
+    % create a pivot table of the error data to plot based on speed and
+    % [look ahead or gain]
     pivot_table = zeros(length(s_to_plot),length(la_to_plot)+1);
     check_reached = false;
     for k =1:length(s_to_plot)
@@ -253,7 +244,9 @@ end
             end
         end
     end
-    %% bar graph
+% ----------
+%% Bar graph
+% ----------
     % flipud(winter(7)
     if latContr_select ==1 || latContr_select == 4
         leg_name = 'look ahead [m]';
@@ -277,8 +270,7 @@ end
     set(htitle,'String',leg_name)
 
     pbaspect([1 1 1])
-%     string_t1 = {'20-60 km/h','70    km/h','80    km/h','90    km/h','100   km/h'};
-%     string_t2 = {'6','5','4','3','2'};
+    % box to display max steer angle
     string_t1 = {'20-70 km/h','80-90 km/h','100   km/h'};
     string_t2 = {'6','4','3'};
     t1 = annotation('textbox', [0.2915, 0.57, 0.1, 0.1],'String', 'Max Steer');
@@ -296,6 +288,3 @@ end
     t3.FontName = 'FixedWidth';
     t3.FontSize = 12;
     exportgraphics(gcf,sprintf(output_file,q,q,'a',latContr_select),'ContentType','vector')
-
-%% trial
-

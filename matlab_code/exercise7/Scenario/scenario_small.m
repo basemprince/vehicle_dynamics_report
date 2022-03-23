@@ -48,7 +48,7 @@ ccConfig = inflationCollisionChecker(vehicleDims, ...
 % --------------------------- 
 figure('Name','Vehicle','NumberTitle','off'), clf
 plot(ccConfig)
-
+set(gca,'Color','w')
 % create a map with uniform costs and without obstacles
 costmap = vehicleCostmap(mapWidth,mapLength,costVal,'CellSize',cellSize,...
                     'CollisionChecker',ccConfig);

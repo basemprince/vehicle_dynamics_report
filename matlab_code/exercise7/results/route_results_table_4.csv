@@ -1,0 +1,2 @@
+c_dist,min_itr,elapsed_time,max_itr,m_steer,inter_sample,path_length,sampled_path_length
+35,100000,29.6,1000000,8,30,522.43065205625,66

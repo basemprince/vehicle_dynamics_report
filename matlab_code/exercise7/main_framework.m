@@ -1,11 +1,66 @@
 % ----------------------------
 %% Initialization
 % ----------------------------
+clear all;
 initialize_environment;
-
+load('../exercise6/results/kus');
+load('../exercise6/results/clothoid_look_up');
+output_file = 'graphs/q%d/ex-7%d%s.eps';
+output_files = 'graphs/q%d/ex-7%d%s-%d.eps';
+q = 1;   
 % Set this flag to 0 to disable route planning and load a precomputed route
 % to decrease simulation time
-enable_routePlan = 0;
+enable_routePlan = 1;
+enable_simulation = 1;
+
+% ----------------------------
+%% variables to loop through
+% ----------------------------
+
+% for route planning
+% c_distances = [20, 30, 35, 40, 45, 50, 55, 60 , 70];
+% min_itrs = [1e5 1e4 1e3 1e2];
+% max_itrs = [1e6 1e5 1e4 1e3];
+c_distances = [35];
+min_itrs = [1e5];
+max_itrs = [1e6];
+
+m_steers = [8];
+interpolation_samples = [30];
+
+
+% for simulations
+const_speed = true;
+speeds_req = [
+%     20,
+%     30,
+%     40,
+    50,
+%     60,
+%     70
+    ];
+speeds_req_k = speeds_req;
+speeds_req = speeds_req/3.6;
+
+% to set initial speed
+if const_speed
+    init_speeds = speeds_req;
+    init_speeds_k = speeds_req_k;
+else
+    init_speeds = [20,50]/3.6;
+end
+
+% route planner optimization
+% c_distances = [20,30,40,50];
+% min_itrs = [1e3, 1e4, 1e5];
+% max_itrs = [1e4, 1e5, 1e6];
+% m_steers = [4, 5, 6];
+% interpolation_samples = [20, 30];
+
+
+% for quick trials
+% speed_req = 70/3.6;
+% init_speed = speed_req;
 
 % ----------------------------
 %% Load vehicle data
@@ -37,15 +92,31 @@ Tf = simulationPars.times.tf;         % stop time of the simulation
 % ----------------------------
 LLC = load_LowLevelControlData();
 LLC_sampleTime = LLC.sample_time;
+plot_freq = 1;
 
-purePursuitParams   = purePursuitControllerParams();
-stanleyParams       = stanleyControllerParams();
-clothoidBasedParams = clothoidBasedControllerParams();
+init_speed = init_speeds(1);
+init_speed_k = init_speeds_k(1);
+X0(4) = init_speed;
+speed_req = speeds_req(1);
+kus = kus_table(round(kus_table(:,1))==init_speed_k,2);
+look_ahead = clothoid_look_up(clothoid_look_up(:,1)==init_speeds_k(1),2);
+
+clothoidBasedParams = clothoidBasedControllerParams(kus,look_ahead);
+% clothoidBasedParams = clothoidBasedControllerParams(0,0);
+stanleyParams       = stanleyControllerParams(0.5,0.5);
+purePursuitParams   = purePursuitControllerParams(0);
 
 % ----------------------------
 %% Select lateral controller type
 % ----------------------------
-select_lateralController;
+
+% Selection logic
+%   o latContr_select = 1 --> arc path following
+%   o latContr_select = 2 --> Stanley kinematic
+%   o latContr_select = 3 --> Stanley dynamic
+%   o latContr_select = 4 --> clothoid-based
+% -------------------
+latContr_select = 4;
 
 % ----------------------------
 %% Load road scenario
@@ -61,7 +132,7 @@ vehicleDims = scenario.scenario_data.vehicleDims;
 % Set this flag to 1 in order to enable online plots during the simulation
 enable_onlinePlots = 0;
 % Set this flag to 1 in order to enable a zoomed view in online simulation plots
-enable_zoom = 1;
+enable_zoom = 0;
 
 if (enable_onlinePlots)
     % Initialize figure for online plots
@@ -74,6 +145,7 @@ if (enable_onlinePlots)
     hold on
 end
 
+
 % ----------------------------
 %% Start Simulation
 % ----------------------------
@@ -81,7 +153,71 @@ fprintf('Starting Simulation\n')
 tic;
 if (enable_routePlan)
     % Perform route planning
-    routePlanner;
+    route_results = {};
+    % loop through all test speeds
+    total = 0;
+    for ind1=1:length(c_distances)
+        c_distance = c_distances(ind1);
+        for ind2=1:length(min_itrs)
+            min_itr = min_itrs(ind2);
+            max_itr = max_itrs(ind2);
+            if (c_distance == 40 || c_distance == 50) && min_itr <= 1e4
+            else
+                for ind3=1:length(m_steers)
+                    m_steer = m_steers(ind3);
+                    for ind4=1:length(interpolation_samples)
+                        total = total +1;
+                        interpolation_sample = interpolation_samples(ind4);
+                        comb = append(string(c_distance),',1e',...
+                            string(log10(min_itr)),',1e', string(log10(max_itr)),',',...
+                            string(m_steer),',', string(interpolation_sample));
+                        fprintf('starting test #%d [%s]\n', total ,comb);
+                        routePlanner;
+                        fprintf('finished\n');
+                        route_results{total} = route_data;
+                    end
+                end
+            end
+        end
+    end
+    
+    route_results_table = zeros(length(route_results),8);
+    for i = 1:length(route_results)
+        route_results_table(i,:) = ...
+        [route_results{i}.c_distance
+        route_results{i}.min_itr
+        route_results{i}.elapsed_time_routePlan
+        route_results{i}.max_itr
+        route_results{i}.m_steer
+        route_results{i}.interpolation_sample
+        route_results{i}.refPath.Length
+        length(route_results{i}.refPath_poses_fewPoints)]';
+    end
+    % to output results to csv
+    T = array2table(route_results_table);
+    T.Properties.VariableNames(1:8) = {'c_dist','min_itr','elapsed_time','max_itr','m_steer','inter_sample','path_length','sampled_path_length'};
+    output = 'results/route_results_table_%d.csv';
+    writetable(T,sprintf(output,latContr_select));
+    
+    elapsed_time_table = zeros(length(c_distances),length(min_itr)+1);
+    route_len_table = zeros(length(c_distances),length(min_itr)+1);
+    for k =1:length(c_distances)
+        elapsed_time_table(k+1,1) = c_distances(k);
+        route_len_table(k+1,1) = c_distances(k);
+        for j =1:length(min_itrs)
+            elapsed_time_table(1,j+1) = min_itrs(j);
+            route_len_table(1,j+1) = min_itrs(j);
+            for i = 1:length(route_results)
+                if route_results{i}.c_distance == c_distances(k)
+                    if route_results{i}.min_itr == min_itrs(j)
+                        elapsed_time_table(k+1,j+1) = route_results{i}.elapsed_time_routePlan;
+                        route_len_table(k+1,j+1) = route_results{i}.refPath.Length;
+                    end
+                end
+            end
+        end
+    end
+    
 else
     % Load a precomputed route to decrease simulation time
     referencePath_points_original = load('refRoute_poses_RRT'); % RRT* solution
@@ -91,15 +227,90 @@ else
     refRoute_fewPoints   = referencePath_fewPoints.refRoute_fewPoints;
     elapsed_time_routePlan = cpuTime_routePlan.elapsed_time_routePlan;    
 end
-% Simulink simulation
-model_sim = sim('framework_sim.slx');
-elapsed_time_simulation = toc; 
-fprintf('Simulation completed\n')
-total_simul_time = elapsed_time_simulation + elapsed_time_routePlan;
-fprintf('It took %.1f seconds to compute the route with RRT*\n',elapsed_time_routePlan)
-fprintf('The total simulation time is %.1f seconds\n',total_simul_time)
 
-% ----------------------------
-%% Post-Processing
-% ----------------------------
-dataAnalysis;
+
+
+if(enable_simulation)
+% Simulink simulation
+model_sims = {};
+error_data = {};
+for ind=1:length(speeds_req)
+    init_speed = init_speeds(ind);
+    init_speed_k = init_speeds_k(ind);
+    X0(4) = init_speed;
+    speed_req = speeds_req(ind);
+    speed_req_k = speeds_req_k(ind);
+    kus = kus_table(round(kus_table(:,1))==init_speeds_k(ind),2);
+    look_ahead = clothoid_look_up(clothoid_look_up(:,1)==init_speeds_k(ind),2);
+    clothoidBasedParams = clothoidBasedControllerParams(kus,look_ahead);
+    fprintf('Starting Simulation # %d [%d km/h]\n', ind ,speeds_req_k(ind));
+    model_sim = sim('framework_sim.slx');
+    elapsed_time_simulation = toc; 
+    fprintf('Simulation completed\n')
+    total_simul_time = elapsed_time_simulation + elapsed_time_routePlan;
+    fprintf('It took %.1f seconds to compute the route with RRT*\n',elapsed_time_routePlan)
+    fprintf('The total simulation time is %.1f seconds\n',total_simul_time)
+    model_sims{ind} = model_sim;
+    error_central = struct();
+    dataAnalysis;
+    error_data{ind} = error_central;
+end
+% --------------------------------------
+%% speed / look-up combination vs. error
+% --------------------------------------
+
+    format shortG
+    error_speed_table = zeros(length(error_data),4);
+    for i = 1:length(error_data)
+%         fprintf("speed: %d lookup: %d", error_data{i}.speed, error_data{i}.look_ahead);
+        error_speed_table(i,:) = [
+            error_data{i}.speed
+            error_data{i}.e_max
+            error_data{i}.e_mean
+            error_data{i}.e_std];
+    end
+    
+    % to output results to csv
+    T = array2table(error_speed_table);
+    T.Properties.VariableNames(1:4) = {'u','max_error','mean_error','std_error'};
+    output = 'results/error_results_table_%d.csv';
+    writetable(T,sprintf(output,latContr_select));
+    
+% ----------
+%% Bar graph
+% ----------
+
+pivot_table = error_speed_table(:,[1 2]);
+% flipud(winter(7)
+if latContr_select ==1 || latContr_select == 4
+    leg_name = 'look ahead [m]';
+else
+    leg_name = 'gain value';
+end
+figure('Name','Tracking error','NumberTitle','off'); clf;
+
+% set(0,'DefaultAxesColorOrder',parula(length(la_to_plot)))
+
+bar(pivot_table(:,1),pivot_table(:,2:end));
+grid on
+xlabel('vehicle speed (u) [$km/h$]')
+ylabel('tracking error [m]')
+% yticks((0:2:14))
+%     ylim([0 52])
+% xlim([10 110])
+set(gca,'fontsize',26)
+% hleg = legend(string(la_to_plot),'location','NW');
+% htitle = get(hleg,'Title');
+% set(htitle,'String',leg_name)
+
+pbaspect([1 1 1])
+exportgraphics(gcf,sprintf(output_files,q,q,'ss',latContr_select),'ContentType','vector')
+end
+
+%% for saving steering angle results
+temp_var = strcat( 'm_steer_test_',num2str(m_steers(1)));
+S.(temp_var) = {route_results, model_sims, error_data};
+
+output_name = 'results/m_steer_test_%deg.mat';
+save(sprintf(output_name,m_steers(1)),'-struct', 'S');
+

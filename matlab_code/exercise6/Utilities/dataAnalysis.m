@@ -737,9 +737,9 @@ function [error_central] = dataAnalysis(model_sim,vehicle_data,Ts,road_data_samp
     %     exportgraphics(gcf,sprintf(output_file,q,q,'m'),'ContentType','vector')
     end
 
-    % -------------------------------
+    % -------------------
     %% Error Calculations
-    % -------------------------------
+    % -------------------
     reached_threshold = 5;
     reached_target = false;
     desired_path = road_data_sampled;

@@ -33,10 +33,28 @@ classdef (StrictDefaults)setControlTargets < matlab.System & matlab.system.mixin
     end
 
     %% stepImpl - called at each time step
-    function [targetPoint_latControl,speed_req,endOfCircuit] = stepImpl(obj,vehPose)
+    function [targetPoint_latControl,speed_req,endOfCircuit, stop_sim] = stepImpl(obj,vehPose,speed_req)
         x_vehCoM = vehPose(1);  % Current vehicle CoM x coord [m]
         y_vehCoM = vehPose(2);  % Current vehicle CoM y coord [m]
         theta_vehCoM = vehPose(3);  % Current vehicle attitude [rad]
+        lookAhead = obj.clothoidBased_lookAhead;
+        finished = obj.refRoute_points(end,[1 2]);
+        threshold = 2;
+        stop_sim = false;
+
+        
+        distance_left = norm(finished - [x_vehCoM y_vehCoM]);
+        % decrease look ahead to distance left if look ahead is bigger
+        if distance_left <= lookAhead
+            if lookAhead > 1
+                lookAhead = distance_left -1;
+            end
+        end
+        % stop simulation once target is reached
+        if distance_left <= threshold
+            stop_sim = true;
+        end
+        
         if (obj.lateralController_type==1 || obj.lateralController_type==4) 
             % Use pure pursuit arc path following or clothoid-based lateral controller.
             % Curvilinear coord of the point belonging to the road middle line
@@ -45,7 +63,7 @@ classdef (StrictDefaults)setControlTargets < matlab.System & matlab.system.mixin
             if (obj.lateralController_type==1)
                 curvAbscissa_lookAhead = s_closest+obj.purePursuit_lookAhead;
             else
-                curvAbscissa_lookAhead = s_closest+obj.clothoidBased_lookAhead;
+                curvAbscissa_lookAhead = s_closest+lookAhead;
             end
             if (curvAbscissa_lookAhead>obj.length_vehRoute)
                 curvAbscissa_lookAhead = obj.length_vehRoute;
@@ -65,7 +83,7 @@ classdef (StrictDefaults)setControlTargets < matlab.System & matlab.system.mixin
         end
         
         % desired vehicle speed [m/s]
-        speed_req = 30/3.6;  
+%         speed_req = 30/3.6;  
         if (x_vehCoM>=obj.x_parkLot && y_vehCoM>obj.y_lowBound_parkLot && y_vehCoM<obj.y_uppBound_parkLot)   % (s_closest >= obj.vehRoute.length-10)
             speed_req = 20/3.6;  % brake when reaching the parking lot
             endOfCircuit = 1; % flag to indicate whether the end of the circuit has been reached or not
@@ -74,28 +92,32 @@ classdef (StrictDefaults)setControlTargets < matlab.System & matlab.system.mixin
         end
     end
 
-    function [sz_1,sz_2,sz_3] = getOutputSizeImpl(~) 
+    function [sz_1,sz_2,sz_3,sz_4] = getOutputSizeImpl(~) 
         sz_1 = [1 4];
         sz_2 = [1];
         sz_3 = [1];
+        sz_4 = [1];
     end
 
-    function [fz1,fz2,fz3] = isOutputFixedSizeImpl(~)
+    function [fz1,fz2,fz3,fz4] = isOutputFixedSizeImpl(~)
         fz1 = true;
         fz2 = true;
         fz3 = true;
+        fz4 = true;
     end
 
-    function [dt1,dt2,dt3] = getOutputDataTypeImpl(~)
+    function [dt1,dt2,dt3,dt4] = getOutputDataTypeImpl(~)
         dt1 = 'double';
         dt2 = 'double';
         dt3 = 'double';
+        dt4 = 'boolean';
     end
 
-    function [cp1,cp2,cp3] = isOutputComplexImpl(~)
+    function [cp1,cp2,cp3,cp4] = isOutputComplexImpl(~)
         cp1 = false;
         cp2 = false;
         cp3 = false;
+        cp4 = false;
     end
         
     end

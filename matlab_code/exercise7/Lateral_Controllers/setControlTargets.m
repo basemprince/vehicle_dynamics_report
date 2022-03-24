@@ -45,7 +45,7 @@ classdef (StrictDefaults)setControlTargets < matlab.System & matlab.system.mixin
         else
             multiplier = speed_req;
         end
-        threshold = multiplier*0.1;
+        threshold = multiplier*0.2;
         stop_sim = false;
 
         

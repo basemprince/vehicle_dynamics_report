@@ -5,7 +5,7 @@
 clc
 clearvars 
 % close all   
-format long;
+% format long;
 
 % Set LaTeX as default interpreter for axis labels, ticks and legends
 set(0,'defaulttextinterpreter','latex')

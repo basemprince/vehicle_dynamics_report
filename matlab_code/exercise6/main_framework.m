@@ -15,20 +15,21 @@ const_speed = true;
 freq = 0.001; % 1/s
 % speeds to test
 req_speeds = [
-    20,
+%     20,
     30,
-    40,
-    50,
-    60,
+%     40,
+%     50,
+%     60,
     70,
-    80,
+%     80,
 %     90,
 %     100
     ];
 req_speeds_k = req_speeds;
 req_speeds = req_speeds/3.6;
 % look ahead to test
-look_ahead_list = [3,10,15,20,25,30];
+% look_ahead_list = [3,10,15,20,25,30];
+look_ahead_list = [3,20];
 % combination testing for kinematic [steer angle, gain]
 s_k_tests = {
     {[6],[0.1,0.5,1]}, % 20
@@ -100,7 +101,7 @@ purePursuitParams   = purePursuitControllerParams(0);
 %   o latContr_select = 3 --> Stanley dynamic
 %   o latContr_select = 4 --> clothoid-based
 % -------------------
-latContr_select = 4;
+latContr_select = 1;
 
 % ----------------------------
 %% Load road scenario
@@ -167,8 +168,8 @@ for ind=1:length(req_speeds)
         for ind2 = 1: length(look_ahead_list) % loop through look ahead values
             look_ahead = look_ahead_list(ind2);
             % if else statement to skip known tests that throws errors
-            if latContr_select == 1 && ((speed_req_k ==70 &&  look_ahead < 15) || (speed_req_k ==80 &&  look_ahead < 15) || (speed_req_k >=90 &&  look_ahead < 20))
-            elseif latContr_select == 4 && ((speed_req_k ==70 &&  look_ahead == 15) || (speed_req_k ==80 &&  look_ahead < 20) || (speed_req_k >=90 &&  look_ahead < 20))
+            if latContr_select == 1 && ((speed_req_k ==70 &&  look_ahead < 15) || (speed_req_k ==80 &&  look_ahead <= 15) || (speed_req_k ==90 &&  look_ahead <= 20)|| (speed_req_k ==100 &&  look_ahead <= 25))
+            elseif latContr_select == 4 && ((speed_req_k ==70 &&  look_ahead == 15) || (speed_req_k ==80 &&  look_ahead < 20) || (speed_req_k >=90 &&  look_ahead < 20) )
             else
                 total = total +1;
                 % re-set clothoid params only if its chosen
@@ -224,7 +225,7 @@ end
 %     la_to_plot = [3,10,15,20,25,30];
 %     la_to_plot = [5,10,15,20,25,30];
 %     la_to_plot = [0.1,0.5,1];
-%     s_to_plot = [20,40,60,80,100];
+    s_to_plot = [30,70];
 
     % create a pivot table of the error data to plot based on speed and
     % [look ahead or gain]
@@ -255,14 +256,14 @@ end
     end
     figure('Name','Tracking error','NumberTitle','off'); clf;
     
-    set(0,'DefaultAxesColorOrder',parula(length(la_to_plot)))
+    set(0,'DefaultAxesColorOrder',parula(length(la_to_plot)+1))
     
     bar(pivot_table(:,1),pivot_table(:,2:end));
     grid on
     xlabel('vehicle speed (u) [$km/h$]')
     ylabel('tracking error [m]')
-    yticks((0:2:14))
-%     ylim([0 52])
+    yticks((0:2:16))     
+    ylim([0 16])
     xlim([10 110])
     set(gca,'fontsize',26)
     hleg = legend(string(la_to_plot),'location','NW');
@@ -270,21 +271,30 @@ end
     set(htitle,'String',leg_name)
 
     pbaspect([1 1 1])
-    % box to display max steer angle
-    string_t1 = {'20-70 km/h','80-90 km/h','100   km/h'};
-    string_t2 = {'6','4','3'};
-    t1 = annotation('textbox', [0.2915, 0.57, 0.1, 0.1],'String', 'Max Steer');
-    t1.BackgroundColor = 'w';
-    t1.HorizontalAlignment = 'center';
-    t1.FontName = 'FixedWidth';
-    t1.FontSize = 17;
-    t2 = annotation('textbox', [0.2737, 0.5159, 0.1, 0.1],'String', string_t1);
-    t2.BackgroundColor = 'w';
-    t2.FontName = 'FixedWidth';
-    t2.FontSize = 12;
-    t3 = annotation('textbox', [0.3440, 0.5159, 0.1, 0.1],'String', string_t2);
-    t3.BackgroundColor = 'w';
-    t3.HorizontalAlignment = 'center';
-    t3.FontName = 'FixedWidth';
-    t3.FontSize = 12;
+%     % box to display max steer angle
+%     string_t1 = {'20-70 km/h','80-90 km/h','100   km/h'};
+%     string_t2 = {'6','4','3'};
+%     t1 = annotation('textbox', [0.2915, 0.57, 0.1, 0.1],'String', 'Max Steer');
+%     t1.BackgroundColor = 'w';
+%     t1.HorizontalAlignment = 'center';
+%     t1.FontName = 'FixedWidth';
+%     t1.FontSize = 17;
+%     t2 = annotation('textbox', [0.2737, 0.5159, 0.1, 0.1],'String', string_t1);
+%     t2.BackgroundColor = 'w';
+%     t2.FontName = 'FixedWidth';
+%     t2.FontSize = 12;
+%     t3 = annotation('textbox', [0.3440, 0.5159, 0.1, 0.1],'String', string_t2);
+%     t3.BackgroundColor = 'w';
+%     t3.HorizontalAlignment = 'center';
+%     t3.FontName = 'FixedWidth';
+%     t3.FontSize = 12;
     exportgraphics(gcf,sprintf(output_file,q,q,'a',latContr_select),'ContentType','vector')
+    
+%% to extract best look aheads based on speed
+
+p = pivot_table;
+p(p==0) = nan;
+[MN,I] = min(p,[],2);
+p_f = look_ahead_list(I-1);
+lookahead_lookup = [pivot_table(:,1) p_f'];
+%% pure_pursuit_look_up - ../exercise6/results/p_pursuit_look_up

@@ -33,7 +33,6 @@ refRoute_points_orig = interpolate(refPath);
 interp_sampling = interpolation_sample;
 interp_vector_fewPoints = 0:interp_sampling:refPath.Length;
 refPath_poses_fewPoints = interpolate(refPath,interp_vector_fewPoints);
-disp(length(refPath_poses_fewPoints))
 isPathValid = checkPathValidity(refPath,costmap);
 
 % ----------------------

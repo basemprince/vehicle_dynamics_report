@@ -1,17 +1,33 @@
-% ----------------------------
-%% Initialization
-% ----------------------------
 clear all;
 initialize_environment;
+% ----------------------------
+%% Controls
+% ----------------------------
+% Set this flag to 0 to disable route planning and load a precomputed route
+enable_routePlan = 0;
+enable_simulation = 1;
+plot_freq = 1;
+
+ % 1 -> pure pursuit; 2 -> S. Kinematic; 3 -> S. Dynamic 4 -> clothoid-based
+latContr_select = 2;
+
+% Set this flag to 1 in order to enable online plots during the simulation
+enable_onlinePlots = 0;
+% Set this flag to 1 in order to enable a zoomed view in online simulation plots
+enable_zoom = 0;
+
+change_samp = true;
+output_result = false;
+% ----------------------------
+%% Load files
+% ----------------------------
+
 load('../exercise6/results/kus');
 load('../exercise6/results/clothoid_look_up');
+load('../exercise6/results/p_pursuit_look_up');
 output_file = 'graphs/q%d/ex-7%d%s.eps';
 output_files = 'graphs/q%d/ex-7%d%s-%d.eps';
 q = 1;   
-% Set this flag to 0 to disable route planning and load a precomputed route
-% to decrease simulation time
-enable_routePlan = 1;
-enable_simulation = 0;
 
 % ----------------------------
 %% variables to loop through
@@ -22,12 +38,11 @@ enable_simulation = 0;
 % min_itrs = [1e5 1e4 1e3 1e2];
 % max_itrs = [1e6 1e5 1e4 1e3];
 c_distances = [45];
-min_itrs = [1e4];
-max_itrs = [1e5];
+min_itrs = [1e5];
+max_itrs = [1e6];
 
 m_steers = [5];
 interpolation_samples = [50];
-
 
 % for simulations
 const_speed = true;
@@ -35,9 +50,9 @@ speeds_req = [
 %     20,
      30,
 %     40,
-    50,
-%     60,
-     70
+%     50,
+    60,
+%      70
     ];
 speeds_req_k = speeds_req;
 speeds_req = speeds_req/3.6;
@@ -56,11 +71,6 @@ end
 % max_itrs = [1e4, 1e5, 1e6];
 % m_steers = [4, 5, 6];
 % interpolation_samples = [20, 30];
-
-
-% for quick trials
-% speed_req = 70/3.6;
-% init_speed = speed_req;
 
 % ----------------------------
 %% Load vehicle data
@@ -92,31 +102,19 @@ Tf = simulationPars.times.tf;         % stop time of the simulation
 % ----------------------------
 LLC = load_LowLevelControlData();
 LLC_sampleTime = LLC.sample_time;
-plot_freq = 1;
+
 
 init_speed = init_speeds(1);
 init_speed_k = init_speeds_k(1);
 X0(4) = init_speed;
 speed_req = speeds_req(1);
 kus = kus_table(round(kus_table(:,1))==init_speed_k,2);
-look_ahead = clothoid_look_up(clothoid_look_up(:,1)==init_speeds_k(1),2);
+clothoid_look_ahead = clothoid_look_up(clothoid_look_up(:,1)==init_speeds_k(1),2);
 
-clothoidBasedParams = clothoidBasedControllerParams(kus,look_ahead);
-% clothoidBasedParams = clothoidBasedControllerParams(0,0);
-stanleyParams       = stanleyControllerParams(0.5,0.5);
-purePursuitParams   = purePursuitControllerParams(0);
-
-% ----------------------------
-%% Select lateral controller type
-% ----------------------------
-
-% Selection logic
-%   o latContr_select = 1 --> arc path following
-%   o latContr_select = 2 --> Stanley kinematic
-%   o latContr_select = 3 --> Stanley dynamic
-%   o latContr_select = 4 --> clothoid-based
-% -------------------
-latContr_select = 4;
+clothoidBasedParams = clothoidBasedControllerParams(kus,clothoid_look_ahead);
+stanleyParams       = stanleyControllerParams(4,0.1);
+p_pursuit_look_ahead = pure_pursuit_look_up(pure_pursuit_look_up(:,1)==init_speeds_k(1),2);
+purePursuitParams   = purePursuitControllerParams(p_pursuit_look_ahead);
 
 % ----------------------------
 %% Load road scenario
@@ -127,12 +125,8 @@ mapObjects = scenario.scenario_data.mapObjects;
 vehicleDims = scenario.scenario_data.vehicleDims;
 
 % ----------------------------
-%% Define graphical interface settings
+%% graphical interface 
 % ----------------------------
-% Set this flag to 1 in order to enable online plots during the simulation
-enable_onlinePlots = 0;
-% Set this flag to 1 in order to enable a zoomed view in online simulation plots
-enable_zoom = 0;
 
 if (enable_onlinePlots)
     % Initialize figure for online plots
@@ -144,8 +138,6 @@ if (enable_onlinePlots)
     title('Road Scenario')
     hold on
 end
-
-
 % ----------------------------
 %% Start Simulation
 % ----------------------------
@@ -248,7 +240,6 @@ end
 
 if(enable_simulation)
 % Simulink simulation
-change_samp = false;
 if(change_samp)
     interp_sampling = interpolation_samples;
     interp_vector_fewPoints = 0:interp_sampling:refPath.Length;
@@ -278,8 +269,13 @@ for ind=1:length(speeds_req)
     speed_req = speeds_req(ind);
     speed_req_k = speeds_req_k(ind);
     kus = kus_table(round(kus_table(:,1))==init_speeds_k(ind),2);
-    look_ahead = clothoid_look_up(clothoid_look_up(:,1)==init_speeds_k(ind),2);
-    clothoidBasedParams = clothoidBasedControllerParams(kus,look_ahead);
+    
+    clothoid_look_ahead = clothoid_look_up(clothoid_look_up(:,1)==init_speeds_k(ind),2);
+    clothoidBasedParams = clothoidBasedControllerParams(kus,clothoid_look_ahead);
+    p_pursuit_look_ahead = pure_pursuit_look_up(pure_pursuit_look_up(:,1)==init_speeds_k(ind),2);
+
+    purePursuitParams   = purePursuitControllerParams(p_pursuit_look_ahead);
+
     fprintf('Starting Simulation # %d [%d km/h]\n', ind ,speeds_req_k(ind));
     model_sim = sim('framework_sim.slx');
     elapsed_time_simulation = toc; 
@@ -299,7 +295,6 @@ end
     format shortG
     error_speed_table = zeros(length(error_data),4);
     for i = 1:length(error_data)
-%         fprintf("speed: %d lookup: %d", error_data{i}.speed, error_data{i}.look_ahead);
         error_speed_table(i,:) = [
             error_data{i}.speed
             error_data{i}.e_max
@@ -345,7 +340,7 @@ exportgraphics(gcf,sprintf(output_files,q,q,'ss',latContr_select),'ContentType',
 end
 
 %% for saving specified results
-output_result = false;
+
 if output_result
     sw = 3;
     if sw ==1

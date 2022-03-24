@@ -98,11 +98,11 @@ Overall, the pure pursuit controller performed well. Table \ref{tab:6.2} shows s
     \centering
     \begin{tabular}{c | c | c| c | c | c | c }
       \textbf{$u$ [km/h]} & \textbf{LA = 3} & \textbf{LA = 10} & \textbf{LA = 15} & \textbf{LA = 20} & \textbf{LA = 25} & \textbf{LA = 30} \\ \hline
-      20 &  \cellcolor{green!10}\num{0.15701634}	& \num{1.38655343370175}	& \num{2.28521601614137} &	\num{2.99241619033646}	& \num{3.50457830899544}	& \num{4.04388716317479}   \\\hline
-      40 &  \cellcolor{green!10}\num{0.421531992855134} &	\num{1.09345663752179} &	\num{2.09288764822395} &	\num{2.81201383670761} &	\num{3.29243914385271} &	\num{3.98893358402656}\\\hline
-      60 &  \num{12.8998008129613} & \cellcolor{green!10}\num{2.38696471474345}	& \num{1.91247858082015} &	\num{2.62502875192359} &	\num{3.25986239209737} &	\num{3.85612670950654}  \\\hline
-      80 & \cellcolor{red!10}NA & \cellcolor{red!10}NA & \num{3.04972335309587} & \cellcolor{green!10}\num{2.91929663191553} &	\num{3.30190280050397} & \num{3.94574554579404} \\\hline
-      100 &  \cellcolor{red!10}NA & \cellcolor{red!10}NA &	\cellcolor{red!10}NA & \cellcolor{green!10}\num{4.01738096688633} & \num{4.13204864464811} & \num{4.34354358822183}
+      20 &  \cellcolor{green!10}\num{0.122447479884261}	& \num{1.20229858149544}	& \num{1.98665627365860} &	\num{2.50901222735532}	& \num{2.89607564298269}	& \num{3.36310387417133}   \\\hline
+      40 &  \cellcolor{green!10}\num{0.545850027367760} &	\num{0.903114425955597} &	\num{1.73093343366169} &	\num{2.31062509178793} &	\num{2.73594362776234} &	\num{3.23567396181456}\\\hline
+      60 &  \num{14.9833184394890} & \num{14.9378800339917}	& \num{11.62915169313966} &\cellcolor{green!10}	\num{2.05379295557061} &	\num{2.47442576799508} &	\num{3.02057477231781}  \\\hline
+      80 & \cellcolor{red!10}NA & \cellcolor{red!10}NA & \cellcolor{red!10}NA & \cellcolor{green!10}\num{2.76118476320162} &	\num{2.61057892579461} & \num{3.06265625323397} \\\hline
+      100 &  \cellcolor{red!10}NA & \cellcolor{red!10}NA &	\cellcolor{red!10}NA & \cellcolor{red!10}NA  & \cellcolor{red!10}NA  & \cellcolor{green!10}\num{3.78184237059937}
 
     \end{tabular}
     \caption{Tracking error results [pure pursuit lateral controller]}
@@ -205,13 +205,13 @@ On the other side of the spectrum, Stanley Kinematic was the worst performer on 
         \label{64ff}
         \end{figure}
         
-The steering angles for the same chosen runs are plotted in Figure \ref{64ff}. The steering angle for pure pursuit exhibited major spikes towards unrealistic numbers, which could be due to the lack of a maximum steer angle. However, it also indicates that the controller needs dampening to counter-react the sudden change in the steering angle as it is trying to instantly follow the reference trajectory. It would not be a pleasant ride using the pure pursuit.   
+The steering angles for the same chosen runs are plotted in Figure \ref{64ff}. The steering angle for pure pursuit exhibited the best smoothness in steering with no sudden jerky changes. It would be a pleasant ride in a vehicle using this controller.   
         
-The clothoid based controller showed better transition between angles, which could make it a more comfortable ride compared to the pure pursuit.
+The clothoid based controller is trailing slightly behind pure pursuit as it showed more sudden transitions between angles, which could make it a less comfortable ride compared to the pure pursuit.
 
 Both of the Stanley controllers showed the same pattern. Some oscillation were present at the higher speed run.
 
-Overall, from a tracking error prospective, the pure pursuit lateral controller is a clear winner. From a steering behaviour prospective, the clothoid based controller is better than the rest.
+Overall, from a tracking error prospective, and steering behaviour, the pure pursuit lateral controller is a clear winner compared to the rest of the controllers tested.
 
 \textbf{Q. Underline the pros and cons of each algorithm}
 \begin{table}[ht!]
@@ -260,7 +260,6 @@ Overall, from a tracking error prospective, the pure pursuit lateral controller 
     % \begin{minipage}[t]{\linewidth}
     \setlist{leftmargin=*}
     \begin{itemize}[noitemsep]
-        \item steering behaviour is erratic
         \item look ahead must be specific for each speed
         
     \end{itemize}

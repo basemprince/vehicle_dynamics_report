@@ -147,7 +147,7 @@ The vehicle tracking worked well with $u$ = [30, 50] km/h. However, tracking err
         \begin{figure}[ht]
         \includegraphics[width=0.5\linewidth]{ex7/q1/ex-71et-4.eps}
         \centering
-        \caption{Tracking error for clothoid based lateral controller tracking RRT*}
+        \caption{Tracking error for clothoid based lateral controller tracking RRT* path}
         \label{71et4}
         \end{figure}
 
@@ -171,8 +171,69 @@ The time required to calculate the route using RRT* is much shorter than how lon
 The biggest bottleneck for traveling time is certainly the speed at which the car is moving. The higher the speed, the shorter the travel time as shown in Table \ref{tab:7.2}. However, the controller's capability falls short at higher speeds causing a major unsafe tracking error.
 
 RRT* could be be contributing to the bottleneck if the generated path requires higher steering input. The clothoid fitting alleviates the issue by smoothing out the route and allowing the vehicle to travel faster through turns.
+
 \section{Exercise 2 - lateral control}
 
 
+The lateral controllers tested earlier will be used on the path that RRT* has generated offline. The controllers will be compared to each other in terms of performance in tracking error, tracking time, and steering behaviour. The list of lateral controllers are as follows:
+\begin{itemize}
+    \item Clothoid based lateral control
+    \item Pure pursuit
+    \item Stanley kinematic
+    \item Stanley dynamic
+\end{itemize}
 
+The controllers have already been optimized in the previous chapter and the best resulting parameters are going to be utilized in the following tests.
 
+RRT* generated a reference path offline, and each controller used said reference path for tracking at u = [30, 50, 60] km/h. Results of the tracking error is displayed in Figure \ref{72er}. 
+        \begin{figure}[ht]
+        \includegraphics[width=0.6\linewidth]{ex7/q2/ex-72er.eps}
+        \centering
+        \caption{Tracking error for lateral controllers following RRT* path}
+        \label{72er}
+        \end{figure}
+
+        \begin{figure}[ht!]
+        \includegraphics[width=0.99\linewidth]{ex7/q2/ex-72ff.eps}
+        \centering
+        \caption{lateral controllers steering behaviour following RRT* path}
+        \label{72ff}
+        \end{figure}
+
+The tests agreed with the previous results achieved in the last chapter. From a tracking error metric prospective, both clothoid based and pure pursuit controllers did well in low speed. However, pure pursuit is much better in higher speeds compared to the rest. Stanley Kinematic struggled on both low and high speeds with the highest tracking error.
+
+Figure \ref{72ff} is the steering behaviour for all the controllers at each speed. The pattern profile for the controllers looked very similar at low speed. Both of the Stanley controllers have a cut off because their max steer parameter is set at 4$^\circ$.
+
+At the higher speed, pure pursuit seemed to perform the best showing smoother curves. The Stanley controllers struggled and exhibited a lot of oscillations and jitters. The results for the tests are all summarized in table \ref{tab:7.3}. The green colored cells highlight the best performer in the each category for both speeds.
+
+\begin{table}[ht!]
+    \centering
+    \begin{tabular}{c|c|c|c|c|c|c} 
+       \multirow{3}{*}{\textbf{Controller}} & \multicolumn{3}{c|}{\textbf{$u$ = 30 km/h}} & \multicolumn{3}{c}{\textbf{$u$ = 60 km/h}} \\
+        \cline{2-7}
+
+ & \multirow{2}{1.3cm}{\centering\textbf{time [s]}} & \multirow{2}{1.3cm}{\centering\textbf{error [m]}} & \multirow{2}{2.2cm}{\centering\textbf{total steer input [$^\circ$]}}
+& \multirow{2}{1.3cm}{\centering\textbf{time [s]}} & \multirow{2}{1.3cm}{\centering\textbf{error [m]}} & \multirow{2}{2.2cm}{\centering\textbf{total steer input [$^\circ$]}}\\
+ &&&&&&\\\hline
+
+         Clothoid-based  & \cellcolor{green!10}62.0 &  0.12 & 82.6 & 31.4 & 2.20 & 67.2 \\ \hline
+        
+        Pure pursuit & 62.1 &  \cellcolor{green!10}0.07 & 68.6 & 31.0 & \cellcolor{green!10}1.42 & \cellcolor{green!10}49.1\\ \hline
+        
+        S. kinematic & 62.7 &  3.40 & \cellcolor{green!10}66.7 & 31.3 & 5.09 & 142.9 \\ \hline
+        
+        S. dynamic & 62.2 &  2.52 & 71.7 & \cellcolor{green!10}30.8 & 3.59 & 151.9 \\ 
+    \end{tabular}
+  \caption{Comparison of lateral controllers results}
+  \label{tab:7.3}
+\end{table}
+
+The time taken to get to target is almost identical between the controllers because the bottleneck is the speed of the car. For the tracking error metric, pure pursuit performed best at both low and high speeds.
+
+To put a metric on the steering behaviour, I calculated the total steering input for each run in degrees. It was computed by summing the absolute values of the change in steering angle between every two consecutive time steps [equation \ref{eq:7.1}].
+
+\begin{equation}\label{eq:7.1} 
+ \delta_{tot} = \sum_{n=1}^{N} |\delta_{i} - \delta_{i+1}|
+\end{equation}
+
+Results agreed with the visual graphs in Figure \ref{72ff}, which suggests that pure pursuit had the least amount of total steer input for both low and high speeds, with clothoid based being the second best. A list of the pros and cons for each controller are included in Table \ref{tab:6.5}.

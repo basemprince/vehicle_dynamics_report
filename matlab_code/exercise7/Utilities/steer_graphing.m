@@ -24,9 +24,9 @@ S.m_steer_test_8 = load('results/m_steer_test_8eg.mat');
 figure('Name','steer_effect','NumberTitle','off'), clf
 
 c =0;
-for i = 5:8
+for i = 4:2:8
     c= c+1;
-    ax(c) = subplot(2,2,c);
+    ax(c) = subplot(1,3,c);
     fn = sprintf('m_steer_test_%d',i);
     hold on
     %plot(planner)
@@ -48,11 +48,11 @@ for i = 5:8
     pbaspect([1 1 1])      
     box on;
 end
-set(ax(1),'position',[.0 .60 .35 .35])
-set(ax(3),'position',[.0 .1 .35 .35])
-set(ax(2),'position',[.20 .60 .35 .35])
-set(ax(4),'position',[.20 .1 .35 .35])
-exportgraphics(gcf,sprintf(output_file,q,q,'ms'),'ContentType','vector')
+% set(ax(1),'position',[.0 .60 .35 .35])
+% set(ax(3),'position',[.0 .1 .35 .35])
+% set(ax(2),'position',[.20 .60 .35 .35])
+% set(ax(4),'position',[.20 .1 .35 .35])
+exportgraphics(gcf,sprintf(output_file,q,q,'mst1'),'ContentType','vector')
 
 %% tracking
 
@@ -63,7 +63,7 @@ clear ax;
 
 figure('Name','tracking','NumberTitle','off'), clf
 c =0;
-for i = 5:8
+for i = 4:2:8
     c= c+1;
 
     fn = sprintf('m_steer_test_%d',i);
@@ -88,7 +88,7 @@ for i = 5:8
     end
     [x_route,y_route] = vehRoute.evaluate(0:0.1:vehRoute.length);
 
-    ax(c) = subplot(2,2,c);
+    ax(c) = subplot(1,3,c);
     title(append('max steer - ', string(i),' ^{\circ}'),'Interpreter','tex')
     hold on
     for ii=1:size(mapObjects,1)
@@ -131,12 +131,12 @@ for i = 5:8
     set(gca,'color',[0.97 0.97 0.97])
     pbaspect([1 1 1])  
 end
-set(ax(1),'position',[.0 .60 .35 .35])
-set(ax(3),'position',[.0 .1 .35 .35])
-set(ax(2),'position',[.20 .60 .35 .35])
-set(ax(4),'position',[.20 .1 .35 .35])
+% set(ax(1),'position',[.0 .60 .35 .35])
+% set(ax(3),'position',[.0 .1 .35 .35])
+% set(ax(2),'position',[.20 .60 .35 .35])
+% set(ax(4),'position',[.20 .1 .35 .35])
 
-exportgraphics(gcf,sprintf(output_file,q,q,'k'),'ContentType','vector')  
+exportgraphics(gcf,sprintf(output_file,q,q,'mst2'),'ContentType','vector')  
 
 
 % ----------
@@ -145,7 +145,7 @@ exportgraphics(gcf,sprintf(output_file,q,q,'k'),'ContentType','vector')
 figure('Name','Tracking error','NumberTitle','off'); clf;
 c =0;
 errors = zeros(4,2);
-for i = 5:8
+for i = 4:8
     c= c+1;
     errors(c,1)= i;
     fn = sprintf('m_steer_test_%d',i);
@@ -154,10 +154,10 @@ end
 
 bar(errors(:,1),errors(:,2:end));
 grid on
-xlabel('max angle ($\delta$) [$km/h$]')
+xlabel('max steer angle ($\delta$) [$^\circ$]')
 ylabel('tracking error [m]')
 % yticks((0:2:14))
-%     ylim([0 52])
+ylim([0 1.4])
 % xlim([10 110])
 set(gca,'fontsize',26)
 % hleg = legend(string(la_to_plot),'location','NW');
@@ -165,5 +165,5 @@ set(gca,'fontsize',26)
 % set(htitle,'String',leg_name)
 
 pbaspect([1 1 1])
-exportgraphics(gcf,sprintf(output_file,q,q,'xx'),'ContentType','vector')
+exportgraphics(gcf,sprintf(output_file,q,q,'mst3'),'ContentType','vector')
 

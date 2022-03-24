@@ -39,7 +39,13 @@ classdef (StrictDefaults)setControlTargets < matlab.System & matlab.system.mixin
         theta_vehCoM = vehPose(3);  % Current vehicle attitude [rad]
         lookAhead = obj.clothoidBased_lookAhead;
         finished = obj.refRoute_points(end,[1 2]);
-        threshold = 2;
+        
+        if speed_req < 10
+            multiplier = 10;
+        else
+            multiplier = speed_req;
+        end
+        threshold = multiplier*0.1;
         stop_sim = false;
 
         

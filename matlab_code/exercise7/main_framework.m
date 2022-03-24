@@ -11,7 +11,7 @@ q = 1;
 % Set this flag to 0 to disable route planning and load a precomputed route
 % to decrease simulation time
 enable_routePlan = 1;
-enable_simulation = 1;
+enable_simulation = 0;
 
 % ----------------------------
 %% variables to loop through
@@ -21,23 +21,23 @@ enable_simulation = 1;
 % c_distances = [20, 30, 35, 40, 45, 50, 55, 60 , 70];
 % min_itrs = [1e5 1e4 1e3 1e2];
 % max_itrs = [1e6 1e5 1e4 1e3];
-c_distances = [35];
-min_itrs = [1e5];
-max_itrs = [1e6];
+c_distances = [45];
+min_itrs = [1e4];
+max_itrs = [1e5];
 
-m_steers = [8];
-interpolation_samples = [30];
+m_steers = [5];
+interpolation_samples = [50];
 
 
 % for simulations
 const_speed = true;
 speeds_req = [
 %     20,
-%     30,
+     30,
 %     40,
     50,
 %     60,
-%     70
+     70
     ];
 speeds_req_k = speeds_req;
 speeds_req = speeds_req/3.6;
@@ -222,16 +222,53 @@ else
     % Load a precomputed route to decrease simulation time
     referencePath_points_original = load('refRoute_poses_RRT'); % RRT* solution
     referencePath_fewPoints = load('refPath_poses_fewPoints');  % interpolated RRT* solution with few points
-    cpuTime_routePlan = load('cpuTime_routePlan');         
+    cpuTime_routePlan = load('cpuTime_routePlan');  
+    refPath = load('refPath');  
+    refPath = refPath.refPath;
     refRoute_points_orig = referencePath_points_original.refRoute_points_orig;
     refRoute_fewPoints   = referencePath_fewPoints.refRoute_fewPoints;
-    elapsed_time_routePlan = cpuTime_routePlan.elapsed_time_routePlan;    
+    elapsed_time_routePlan = cpuTime_routePlan.elapsed_time_routePlan; 
+    route_data = struct();
+    route_data = struct();
+    route_data.c_distance = c_distances(1);
+    route_data.min_itr = min_itrs(1);
+    route_data.max_itr = max_itrs(1);
+    route_data.m_steer = m_steers(1);
+    route_data.interpolation_sample = interpolation_samples(1);
+    route_data.costmap = costmap;
+    route_data.refPath = refPath;
+    route_data.refRoute_points_orig = refRoute_points_orig;
+    route_data.refRoute_fewPoints = refRoute_fewPoints;
+%     route_data.refPath_poses_fewPoints = refPath_poses_fewPoints;
+    route_data.elapsed_time_routePlan = elapsed_time_routePlan;
+    route_results = route_data;    
 end
 
 
 
 if(enable_simulation)
 % Simulink simulation
+change_samp = false;
+if(change_samp)
+    interp_sampling = interpolation_samples;
+    interp_vector_fewPoints = 0:interp_sampling:refPath.Length;
+    refPath_poses_fewPoints = interpolate(refPath,interp_vector_fewPoints);
+    isPathValid = checkPathValidity(refPath,costmap);
+    path_fewPoints = ClothoidList();
+    numOfClothoids_fewPoints = size(refPath_poses_fewPoints,1);
+    for jj = 1:numOfClothoids_fewPoints-1
+        try
+            path_fewPoints.push_back_G1(refPath_poses_fewPoints(jj,1),refPath_poses_fewPoints(jj,2),deg2rad(refPath_poses_fewPoints(jj,3)), refPath_poses_fewPoints(jj+1,1),refPath_poses_fewPoints(jj+1,2),deg2rad(refPath_poses_fewPoints(jj+1,3))); 
+        catch
+        warning('Problem using function.  Assigning a value of 0.');
+        end
+    end
+    % Compute the local curvature for the reference route
+    interp_vector_fewPoints = [interp_vector_fewPoints, path_fewPoints.length];    % add also the final route point
+    [x_cloth_refPath_fewPoints,y_cloth_refPath_fewPoints,theta_cloth_refPath_fewPoints,curv_refPath_fewPoints] = path_fewPoints.evaluate(interp_vector_fewPoints);
+    refRoute_fewPoints = [x_cloth_refPath_fewPoints',y_cloth_refPath_fewPoints',theta_cloth_refPath_fewPoints',curv_refPath_fewPoints'];
+end
+
 model_sims = {};
 error_data = {};
 for ind=1:length(speeds_req)
@@ -307,10 +344,43 @@ pbaspect([1 1 1])
 exportgraphics(gcf,sprintf(output_files,q,q,'ss',latContr_select),'ContentType','vector')
 end
 
-%% for saving steering angle results
-temp_var = strcat( 'm_steer_test_',num2str(m_steers(1)));
-S.(temp_var) = {route_results, model_sims, error_data};
+%% for saving specified results
+output_result = false;
+if output_result
+    sw = 3;
+    if sw ==1
+        what_for1 = 'm_steer_test_';
+        what_for2 = m_steers(1);
+    end
+    if sw == 2
+        what_for1 = 'cdist_test';
+        what_for2 = c_distances(1);
+    end
+    
+    if sw == 3
+        what_for1 = 'samp_test';
+        what_for2 = interpolation_samples(1);
+    end
+    
+    temp_var = strcat( what_for1 ,num2str(what_for2));
+    if ~enable_routePlan
+        route_data = struct();
+        route_data.c_distance = c_distances(1);
+        route_data.min_itr = min_itrs(1);
+        route_data.max_itr = max_itrs(1);
+        route_data.m_steer = m_steers(1);
+        route_data.interpolation_sample = interpolation_samples(1);
+        route_data.costmap = costmap;
+        route_data.refPath = refPath;
+        route_data.refRoute_points_orig = refRoute_points_orig;
+        route_data.refRoute_fewPoints = refRoute_fewPoints;
+        route_data.refPath_poses_fewPoints = refPath_poses_fewPoints;
+        route_data.elapsed_time_routePlan = elapsed_time_routePlan;
+        route_results = route_data;
+    end
+    
+    S.(temp_var) = {route_results, model_sims, error_data};
 
-output_name = 'results/m_steer_test_%deg.mat';
-save(sprintf(output_name,m_steers(1)),'-struct', 'S');
-
+    output_name = 'results/%s_%d.mat';
+    save(sprintf(output_name,what_for1,what_for2),'-struct', 'S');
+end

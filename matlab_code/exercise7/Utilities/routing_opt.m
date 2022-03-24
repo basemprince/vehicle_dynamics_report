@@ -28,16 +28,57 @@ for k =1:length(c_distances)
         end
     end
 end
-%%
-figure('Name','steer_effect','NumberTitle','off'), clf
+%% connection dist effect
+figure('Name','connecition dist','NumberTitle','off'), clf
 
 c =0;
-to_plt = [60 ];
+dist_to_plt = [30 50 70];
+itrs_to_plt = [1e5];
+for i =  1:length(route_results)
+    curr_c  = route_results{i}.c_distance;
+    curr_itr  = route_results{i}.min_itr;
+    if ismember(curr_c,dist_to_plt) && ismember(curr_itr,itrs_to_plt)
+        c = c+1;
+        ax(c) = subplot(1,length(dist_to_plt),c);
+        hold on
+        %plot(planner)
+        plot(route_results{i}.costmap)
+        plot(route_results{i}.refPath,'color','b','DisplayName','Planned Path')
+%         scatter(route_results{i}.refRoute_points_orig(:,1),route_results{i}.refRoute_points_orig(:,2),[],'filled', ...
+%             'DisplayName','Transition Points')
+%         scatter(route_results{i}.refPath_poses_fewPoints(:,1),route_results{i}.refPath_poses_fewPoints(:,2),'DisplayName','Interpolated Points')
+        xlim([0 200])
+        ylim([0 200])
+        xlabel('x [m]')
+        ylabel('y [m]')
+    %     xticks([0:20:200])
+    %     yticks([0:20:200])
+
+        set(gca,'color',[0.9 0.9 0.9])
+        legend('location','NW','fontSize',11);
+        title(append('connection distance - ', string(curr_c)),'Interpreter','tex')
+        pbaspect([1 1 1])      
+        box on;
+    end
+end
+% set(ax(1),'position',[.0 .60 .35 .35])
+% set(ax(3),'position',[.0 .1 .35 .35])
+% set(ax(2),'position',[.20 .60 .35 .35])
+% set(ax(4),'position',[.20 .1 .35 .35])
+exportgraphics(gcf,sprintf(output_file,q,q,'cds'),'ContentType','vector')
+
+%% itrs effect
+figure('Name','iter effect','NumberTitle','off'), clf
+
+c =0;
+dist_to_plt = [60];
+itrs_to_plt = [1e3 1e4 1e5];
 for i =  length(route_results):-1:1
     curr_c  = route_results{i}.c_distance;
-    if ismember(curr_c,to_plt)
+    curr_itr  = route_results{i}.min_itr;
+    if ismember(curr_c,dist_to_plt) && ismember(curr_itr,itrs_to_plt)
         c = c+1;
-        ax(c) = subplot(length(to_plt),length(min_itrs),c);
+        ax(c) = subplot(length(dist_to_plt),length(itrs_to_plt),c);
         hold on
         %plot(planner)
         plot(route_results{i}.costmap)
@@ -59,28 +100,31 @@ for i =  length(route_results):-1:1
         box on;
     end
 end
-set(ax(1),'position',[.0 .60 .35 .35])
-set(ax(3),'position',[.0 .1 .35 .35])
-set(ax(2),'position',[.20 .60 .35 .35])
-set(ax(4),'position',[.20 .1 .35 .35])
-exportgraphics(gcf,sprintf(output_file,q,q,'mss'),'ContentType','vector')
+% set(ax(1),'position',[.0 .60 .35 .35])
+% set(ax(3),'position',[.0 .1 .35 .35])
+% set(ax(2),'position',[.20 .60 .35 .35])
+% set(ax(4),'position',[.20 .1 .35 .35])
+exportgraphics(gcf,sprintf(output_file,q,q,'itr'),'ContentType','vector')
 
 % ----------
 %% Bar graph
 % ----------
-
+% elapsed time
 figure('Name','elapsed time','NumberTitle','off'); clf;
 
 % set(0,'DefaultAxesColorOrder',flipud(parula(length(min_itrs))))
 dist = 3 ;
-x = 1:dist:(1+(length(elapsed_time_table(2:end,2:end))-1)*dist) ;
-bar(x,elapsed_time_table(2:end,2:end));
+y_plt = elapsed_time_table(2:end,2:end);
+y_plt(y_plt==0)=nan;
+x = 1:dist:(1+(length(y_plt)-1)*dist) ;
+bar(x,y_plt);
 xticklabels(elapsed_time_table(2:end,1))
 grid on
 xlabel('connection distance [m]')
 ylabel('elapsed time [s]')
 % yticks((0:2:14))
 ylim([0 30])
+% set(gca, 'YScale', 'log')
 xlim([x(1)-4 x(end)]+2)
 set(gca,'fontsize',20)
 hleg = legend(append('1e',string(log10(min_itrs)), ' / 1e',string(log10(min_itrs))),'location','NW');
@@ -88,7 +132,7 @@ htitle = get(hleg,'Title');
 set(htitle,'String','min/max itrs')
 
 pbaspect([1.2 1 1])
-exportgraphics(gcf,sprintf(output_file,q,q,'bb'),'ContentType','vector')
+exportgraphics(gcf,sprintf(output_file,q,q,'eltm'),'ContentType','vector')
 
 
 %% length of route
@@ -108,7 +152,7 @@ x_tick_ = append('1e', string(log10(avg_dists(:,1))), '/ 1e', string(log10(avg_d
 xticklabels(x_tick_)
 grid on
 xlabel('min/max iterations')
-ylabel('path total distance [m]')
+ylabel('average path total distance [m]')
 % yticks((0:2:14))
 ylim([450 580])
 xlim([x(1)-4 x(end)]+2)
@@ -118,4 +162,4 @@ set(gca,'fontsize',20)
 % set(htitle,'String','min/max itrs')
 
 pbaspect([1.2 1 1])
-exportgraphics(gcf,sprintf(output_file,q,q,'dd'),'ContentType','vector')
+exportgraphics(gcf,sprintf(output_file,q,q,'rl'),'ContentType','vector')

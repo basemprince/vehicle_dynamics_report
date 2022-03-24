@@ -33,7 +33,7 @@ refRoute_points_orig = interpolate(refPath);
 interp_sampling = interpolation_sample;
 interp_vector_fewPoints = 0:interp_sampling:refPath.Length;
 refPath_poses_fewPoints = interpolate(refPath,interp_vector_fewPoints);
-
+disp(length(refPath_poses_fewPoints))
 isPathValid = checkPathValidity(refPath,costmap);
 
 % ----------------------
@@ -59,7 +59,7 @@ refRoute_fewPoints = [x_cloth_refPath_fewPoints',y_cloth_refPath_fewPoints',thet
 save('./Scenario/refPath_poses_fewPoints','refRoute_fewPoints');
 save('./Scenario/refRoute_poses_RRT','refRoute_points_orig');
 save('./Scenario/cpuTime_routePlan','elapsed_time_routePlan');
-
+save('./Scenario/refPath','refPath');
 % ----------------------------------------------------
 %% Plot the resulting path
 % ----------------------------------------------------

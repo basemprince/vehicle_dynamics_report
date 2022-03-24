@@ -144,27 +144,33 @@ if (enable_plots)
     % -------------------------------
     figure('Name','States and controls','NumberTitle','off'), clf
     % --- u --- %
-    ax(1) = subplot(221);
-    plot(time_sim,u,'LineWidth',2)
+    ax(1) = subplot(131);
+    plot(time_sim,u*3.6,'-b','LineWidth',2)
     hold on
-    plot(time_sim,speed_request,'--r','LineWidth',2)
-    legend('real','desired','Location','best')
+    plot(time_sim,speed_request*3.6,'--r','LineWidth',2)
+    legend('real','desired','Location','SW')
     grid on
-    title('$u$ [m/s]')  
+    ylabel('$u$ [km/h]')  
+    xlabel('Time (s)')
     xlim([0 time_sim(end)])
+    pbaspect([1 1 1])   
     % --- delta_0 --- %
-    ax(2) = subplot(222);
-    plot(time_sim,rad2deg(delta_D),'LineWidth',2)
+    ax(2) = subplot(132);
+    plot(time_sim,rad2deg(delta_D),'-b','LineWidth',2)
     grid on
-    title('$\delta_0$ [deg]')
+    ylabel('$\delta_0$ [deg]')
+    xlabel('Time (s)')
     xlim([0 time_sim(end)])
+    pbaspect([1 1 1])   
     % --- Omega --- %
-    ax(3) = subplot(223);
-    plot(time_sim,Omega,'LineWidth',2)
+    ax(3) = subplot(133);
+    plot(time_sim,Omega,'-b','LineWidth',2)
     grid on
-    title('$\Omega$ [rad/s]')
+    ylabel('$\Omega$ [rad/s]')
+    xlabel('Time (s)')
     xlim([0 time_sim(end)])
-
+    pbaspect([1 1 1])      
+%     exportgraphics(gcf,sprintf(output_file,q,q,'a'),'ContentType','vector')
     % linkaxes(ax,'x')
     clear ax    
 
@@ -173,24 +179,30 @@ if (enable_plots)
     % -------------------------------
     figure('Name','Pose','NumberTitle','off'), clf
     % --- x --- %
-    ax(1) = subplot(221);
-    plot(time_sim,x_CoM,'LineWidth',2)
+    ax(1) = subplot(131);
+    plot(time_sim,x_CoM,'-b','LineWidth',2)
     grid on
-    title('$x$ [m]')
+    ylabel('$x$ [m]')
     xlim([0 time_sim(end)])
+    xlabel('Time (s)')
+    pbaspect([1 1 1])    
     % --- y --- %
-    ax(2) = subplot(222);
-    plot(time_sim,y_CoM,'LineWidth',2)
+    ax(2) = subplot(132);
+    plot(time_sim,y_CoM,'-b','LineWidth',2)
     grid on
-    title('$y$ [m]')
+    ylabel('$y$ [m]')
+    xlabel('Time (s)')
     xlim([0 time_sim(end)])
+    pbaspect([1 1 1])    
     % --- psi --- %
-    ax(3) = subplot(223);
-    plot(time_sim,rad2deg(psi),'LineWidth',2)
+    ax(3) = subplot(133);
+    plot(time_sim,rad2deg(psi),'-b','LineWidth',2)
     grid on
-    title('$\psi$ [deg]')
+    ylabel('$\psi$ [deg]')
+    xlabel('Time (s)')
     xlim([0 time_sim(end)])
-
+    pbaspect([1 1 1])      
+%     exportgraphics(gcf,sprintf(output_file,q,q,'b'),'ContentType','vector')    
     % linkaxes(ax,'x')
     clear ax
     
@@ -202,23 +214,25 @@ if (enable_plots)
     
     figure('Name','Real Vehicle Path','NumberTitle','off'), clf
     set(gca,'fontsize',16)
-    hold on
-    axis equal
-    xlabel('x-coord [m]')
-    ylabel('y-coord [m]')
+
+
     title('Scenario')  %Real Vehicle Path
     % Plot road scenario
+%     plot(costmap,'Inflation','off')
+    hold on
     for ii=1:size(mapObjects,1)
-        rectangle('Position',mapObjects(ii,:),'FaceColor',color('purple'),'EdgeColor',color('purple'),'LineWidth',2)
+        rectangle('Position',mapObjects(ii,:),'FaceColor',color('purple'),'EdgeColor','k','LineWidth',2)
+
     end
-    %plot(costmap)
     % Plot interpolated reference route 
-    plot(refRoute_fewPoints(:,1),refRoute_fewPoints(:,2),'go','MarkerFaceColor','g','MarkerSize',8) %,'DisplayName','Route'
+
+%     plot(refRoute_fewPoints(:,1),refRoute_fewPoints(:,2),'go','MarkerFaceColor','g','MarkerSize',8) %,'DisplayName','Route'
+
     % Plot original (not interpolated) reference route 
-    plot(refRoute_points_orig(:,1),refRoute_points_orig(:,2),'o','Color',color('orange'),'MarkerFaceColor',color('orange'),'MarkerSize',8) %,'DisplayName','Interpolated Route'
+%     plot(refRoute_points_orig(:,1),refRoute_points_orig(:,2),'o','Color',color('orange'),'MarkerFaceColor',color('orange'),'MarkerSize',8) %,'DisplayName','Interpolated Route'
     % Plot vehicle CoM trajectory
     plot(x_CoM,y_CoM,'Color',color('gold'),'LineWidth',4)
-    vehRoute.plot;
+%     vehRoute.plot;
     for i = 1:floor(N/20):N
         rot_mat = [cos(psi(i)) -sin(psi(i)) ; sin(psi(i)) cos(psi(i))];
         pos_rr = rot_mat*[-Lr -Wr/2]';
@@ -232,11 +246,20 @@ if (enable_plots)
     end
     plot(5,5,'mo','MarkerSize',6,'MarkerFaceColor','m')
     plot(196,134.5,'go','MarkerSize',6,'MarkerFaceColor','g')
-    text(8,5,'A','FontSize',16);
-    text(187,134.5,'B','FontSize',16);
-    grid on
-    legend('interpolating points','route','vehicle path','clothoid fitting','clothoid fitting','location','best')
-    
+    text(2,11,'A','FontSize',16);
+    text(193,145,'B','FontSize',16);
+    hold off
+    box on
+    xlabel('x-coord [m]')
+    ylabel('y-coord [m]')
+    xlim([0 200])
+    ylim([0 200])
+    xticks([0:20:200])
+    yticks([0:20:200])
+    legend('interpolating points','route','vehicle path','clothoid fitting','clothoid fitting','location','NW')
+    set(gca,'color',[0.97 0.97 0.97])
+    pbaspect([1 1 1])      
+    exportgraphics(gcf,sprintf(output_file,q,q,'c'),'ContentType','vector')      
 
 end    
 
@@ -271,4 +294,25 @@ else
     fprintf('The vehicle did not manage to complete the scenario!\n');
 end
 
+% -------------------
+%% Error Calculations
+% -------------------
+real_path = [x_CoM,y_CoM];
+k = dsearchn(desired_path,real_path);
+close_path = desired_path(k,:);
 
+
+
+e_cum = zeros(length(real_path),1);
+for i = 1: length(real_path)
+    e_cum(i) = norm(real_path(i,:)-close_path(i,:));
+end
+error_central.speed = speed_req_k;
+error_central.e_cum = e_cum;
+error_central.e_max = max(e_cum);
+error_central.e_min = min(e_cum);
+error_central.e_mean = mean(e_cum);
+error_central.e_std = std(e_cum);
+error_central.delta_fr = delta_fr;
+error_central.delta_fl = delta_fl;
+error_central.time_sim = time_sim;

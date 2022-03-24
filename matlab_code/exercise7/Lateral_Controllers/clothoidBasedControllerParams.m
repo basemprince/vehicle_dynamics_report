@@ -11,4 +11,3 @@ function clothoidBasedParams = clothoidBasedControllerParams(kus,look_ahead)
     clothoidBasedParams.Kus = kus;  % REPLACE THIS WITH THE CORRECT VALUE!!!! 
 
 end
-

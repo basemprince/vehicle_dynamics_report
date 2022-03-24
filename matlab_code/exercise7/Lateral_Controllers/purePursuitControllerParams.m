@@ -8,4 +8,3 @@ function purePursuitParams = purePursuitControllerParams(lookAhead)
     purePursuitParams.lookAhead = lookAhead; 
 
 end
-

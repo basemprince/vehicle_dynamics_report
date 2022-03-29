@@ -226,13 +226,13 @@ if (enable_plots)
     end
     % Plot interpolated reference route 
 
-%     plot(refRoute_fewPoints(:,1),refRoute_fewPoints(:,2),'go','MarkerFaceColor','g','MarkerSize',8) %,'DisplayName','Route'
+    plot(refRoute_fewPoints(:,1),refRoute_fewPoints(:,2),'go','MarkerFaceColor','g','MarkerSize',8) %,'DisplayName','Route'
 
     % Plot original (not interpolated) reference route 
-%     plot(refRoute_points_orig(:,1),refRoute_points_orig(:,2),'o','Color',color('orange'),'MarkerFaceColor',color('orange'),'MarkerSize',8) %,'DisplayName','Interpolated Route'
+    plot(refRoute_points_orig(:,1),refRoute_points_orig(:,2),'o','Color',color('orange'),'MarkerFaceColor',color('orange'),'MarkerSize',8) %,'DisplayName','Interpolated Route'
     % Plot vehicle CoM trajectory
     plot(x_CoM,y_CoM,'Color',color('gold'),'LineWidth',4)
-%     vehRoute.plot;
+    vehRoute.plot;
     for i = 1:floor(N/20):N
         rot_mat = [cos(psi(i)) -sin(psi(i)) ; sin(psi(i)) cos(psi(i))];
         pos_rr = rot_mat*[-Lr -Wr/2]';

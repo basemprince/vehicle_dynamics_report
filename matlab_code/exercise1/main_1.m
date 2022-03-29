@@ -7,6 +7,7 @@ set (groot, 'defaultAxesTickLabelInterpreter','latex')
 set (groot, 'defaultLegendInterpreter', 'latex')
 set (0,'defaultAxesFontSize', 20)
 set (0, 'DefaultLegendFontSize',20)
+set(0,'DefaultFigureWindowStyle','docked')
 
 % exerices 1
 %% part1
@@ -28,7 +29,9 @@ grid on;
 best_k = ki_v(I);
 fprintf('maximum Fx = %f\n', pks);
 fprintf('best k = %f\n', best_k);
-
+set(gca,'fontSize',25);
+pbaspect([1.25 1 1]);
+exportgraphics(gcf,'graphs/e-11.eps','ContentType','vector');
 
 %% part2
 w = 70;
@@ -42,32 +45,47 @@ fprintf('calculated longitduinal force = %f\n', Fx0);
 BCD = Bx * Cx * Dx;
 fprintf('calculated cornering stiffness Cfk = %f\n', BCD);
 
-ki_v_s = -1:0.01:1;
+ki_v_s = -0.045:0.01:0.045;
 Y_s = MagicFormula(ki_v_s,Bx,Cx,Dx,Ex,Sh,Sv);
 Y_app = ki_v_s * BCD;
-Y_er = abs(Y_s - Y_app)*100 ./abs(Y_s);
+Y_er = abs(Y_s - Y_app)*100 ./abs(Y_app);
 
 figure(2);
-plot(ki_v,Y,'-r','LineWidth',2);
+plot(ki_v,Y,'-r','LineWidth',2,'displayName','Pacejka');
 hold on
-plot(ki_v_s,Y_app,'--b','LineWidth',2);
-hold off
+plot(ki_v_s,Y_app,'--b','LineWidth',3,'displayName','BCD');
+
 xlabel('$\kappa$')
 ylabel('$F_x(\kappa)$');
-ylim([-3000 3000])
+ylim([-2500 2500])
 grid on;
 
+c = 0;
+L= 0.1;
+plot([c L+0.05],[c c],':k','LineWidth',2);
+th = 87:-1:0 ; 
+xc = c+L*cosd(th) ; 
+yc = c+L*sind(th)*3200 ; 
+plot(xc,yc,'-k','LineWidth',2);
+text(0.1,300,'$C_F\kappa$','Color','k','FontSize',25,'fontweight','bold');
+legend('Pacejka','BCD','location','SE');
+set(gca,'fontSize',25);
+pbaspect([1.25 1 1]);
+exportgraphics(gcf,'graphs/e-11a.eps','ContentType','vector');
 
 %% part2-2
 figure(3);
 Y_er_q= Y_er;
-Y_er_q(Y_er_q>=100)=nan;
+Y_er_q(Y_er_q>=100)=0;
 plot(ki_v_s,Y_er_q,'-b','LineWidth',2);
 xlabel('$\kappa$')
 ylabel('$F_x(\kappa)$ \% difference');
 % xlim([-0.03 0.025])
 ylim([0 100])
 grid on;
+set(gca,'fontSize',25);
+pbaspect([1.25 1 1]);
+exportgraphics(gcf,'graphs/e-15.eps','ContentType','vector');
 
 
 %% exercise 2
@@ -105,7 +123,7 @@ Dxa_f = 1 ./ (cos(Cxa*atan(Bxa_f*SHxa)));
 % ylabel('$F_x(\kappa)$');
 % grid on;
 
-
+%% graph 6
 for i = 1 : length(alpha_array)
 alpha_c = alpha_array_d(i);
 Gxa_c = weighingFunc(Dxa_f,Cxa,Bxa_f,alpha_c,SHxa);
@@ -114,13 +132,16 @@ ss= strcat('$\alpha=',num2str(alpha_array(i)),'$');
 Fx_c = Gxa_c .* Y;
 plot(ki_v,Fx_c,'DisplayName',ss,'LineWidth',2);
 hold on
-legend;
+legend('location','SE');
 xlabel('$\kappa$')
 ylabel('$F_x(\kappa)$');
 grid on
 end
+set(gca,'fontSize',25);
+pbaspect([1.25 1 1]);
+exportgraphics(gcf,'graphs/e-16.eps','ContentType','vector');
 
-%% figure 5
+%% graph 7
 for i = 1 : length(alpha_array)
 alpha_c = alpha_array_d(i);
 Gxa_c = weighingFunc(Dxa_f,Cxa,Bxa_f,alpha_c,SHxa);
@@ -128,11 +149,13 @@ figure(5);
 ss= strcat('$\alpha=',num2str(alpha_array(i)),'$');
 plot(ki_v,Gxa_c,'DisplayName',ss,'LineWidth',2);
 hold on
-legend;
+legend('location','SE');
 xlabel('$\kappa$')
 ylabel('$G_xa$');
 grid on
 end
-print -depsc myfig4.eps
+set(gca,'fontSize',25);
+pbaspect([1.25 1 1]);
+exportgraphics(gcf,'graphs/e-17.eps','ContentType','vector');
 
 

@@ -69,9 +69,9 @@ if (enable_plotRoute)
     %plot(planner)
     plot(costmap)
     plot(refPath,'DisplayName','Planned Path')
-%     scatter(refRoute_points_orig(:,1),refRoute_points_orig(:,2),[],'filled', ...
-%         'DisplayName','Transition Points')
-%     scatter(refPath_poses_fewPoints(:,1),refPath_poses_fewPoints(:,2),'DisplayName','Interpolated Points')
+    scatter(refRoute_points_orig(:,1),refRoute_points_orig(:,2),[],'filled', ...
+        'DisplayName','Transition Points')
+    scatter(refPath_poses_fewPoints(:,1),refPath_poses_fewPoints(:,2),'DisplayName','Interpolated Points')
     xlim([0 200])
     ylim([0 200])
     xlabel('x [m]')

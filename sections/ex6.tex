@@ -16,7 +16,7 @@ To optimize the clothoid-based lateral controller look ahead variable, several t
     \item look ahead = [5, 10, 15, 20, 25, 30]
 \end{itemize}
 
-The tracking error had to be calculated to compare the tests' results. That was done by using the ``N-D nearest point search" function in Matlab, which returns indices of closest points in the desired path for each point on the real path. Then calculating the euclidean distance between each point in the real path and closest point on the desired path as tracking error. The results are shown in Figure \ref{61a-4} and Table \ref{tab:6.1} where LA is the look ahead value.
+The tracking error had to be calculated to compare the test results. That was done by using the ``N-D nearest point search" function in Matlab, which returns indices of closest points in the desired path for each point on the real path. Then calculating the euclidean distance between each point in the real path and closest point on the desired path as tracking error. The results are shown in Figure \ref{61a-4} and Table \ref{tab:6.1} where LA is the look ahead value.
         
         \begin{figure}[ht]
         \includegraphics[width=0.6\linewidth]{ex6/q1/ex-61a-4.eps}
@@ -36,7 +36,7 @@ The tests checked if the vehicle was able to arrive at a designated target point
       40 &  \cellcolor{green!10}\num{0.225603124} & \num{0.361992743}	& \num{0.728903508} &	\num{1.387858567} &	\num{2.228111216} &	\num{3.252073013}  \\\hline
       50 & \cellcolor{red!10}NA & \num{9.077008353} & \num{1.421928047} & \cellcolor{green!10}\num{0.718803621} &	\num{1.593478851} & \num{2.81030173} \\\hline
       60 &  \cellcolor{red!10}NA & \num{12.14781879} &	\num{8.667722795}	& \cellcolor{green!10}\num{3.2567} & \num{5.819637} & \num{9.074008} \\\hline
-      70 &  \num{14.15735028} & \num{23.03289356} & \cellcolor{red!10}NA & \cellcolor{red!10}NA & \num{4.14466} & \cellcolor{green!10}\num{4.4459637}
+      70 &  \num{14.15735028} & \num{23.03289356} & \cellcolor{red!10}NA & \cellcolor{red!10}NA & \cellcolor{green!10}\num{4.14466} & \num{4.4459637}
 
     \end{tabular}
     \caption{Tracking error results [clothoid-based lateral controller]}
@@ -45,25 +45,25 @@ The tests checked if the vehicle was able to arrive at a designated target point
 
 The red colored cells indicates the vehicle was not able to arrive at the designated target point. Green cells are the chosen look ahead values at each speed $u$.
 
-It appears that the larger the look ahead value, the larger the tracking error as expected. Having a larger look ahead at 20 km/h could be beneficial if we are optimizing for traveled distance, and smoother turns [less jerk].
+As expected, the larger the look ahead value, the larger the tracking error. Having a larger look ahead at 20 km/h could be beneficial if we are optimizing for traveled distance, and smoother turns [less jerk].
 
 Figure \ref{61x20} shows the vehicle actual path at each look ahead value for 20 km/h tests. A larger look ahead optimized the vehicles path to take a shorter route and take better turns. However, this caused the tracking error to increase, because we are not following the reference trajectory anymore.
 
        \begin{figure}[ht]
-        \includegraphics[width=0.6\linewidth]{ex6/q1/ex-61x20.eps}
+        \includegraphics[width=0.57\linewidth]{ex6/q1/ex-61x20.eps}
         \centering
         \caption{Real vehicle path with different look ahead values [$u$ = 20km/h] }
         \label{61x20}
         \end{figure}
 
-Up until 40 km/h, a lower look ahead value performed better for our metrics. With increasing $u$, the smaller look ahead values were simply not enough to control the vehicle properly. The controller needs to see far enough ahead to account for a curve earlier on. The faster the vehicle, the bigger the needed look ahead value. However, it seems that after 70 km/h, the vehicle can no longer become stable even with a look ahead as high as 250. 
+Up until 40 km/h, a lower look ahead value performed better for our metrics. With increasing $u$, the smaller look ahead values were simply not enough to control the vehicle properly. The controller needs to see far enough ahead to account for a curve earlier on. The faster the vehicle, the bigger the needed look ahead value.
 
 Figure \ref{61x70} shows the vehicle paths at 70 km/h at different values for the look ahead. The higher values are more stable but still considered outside the capabilities of the vehicle.
 
-No values of look ahead was enough to stabilize the vehicle with any speed higher than 70 km/h. This might be attributed to the $\kus$ values not being accurate enough at these speeds. The handling curves during these speeds were not linear anymore and a linear approximation for them is not sufficient.
+No values of look ahead was enough to stabilize the vehicle with any speed higher than 70 km/h. This might be attributed to the $\kus$ values not being accurate enough at these speeds. The handling curves during these speeds were not linear anymore and a linear approximation for them is not sufficient. It could be also attributed to the fact that the look ahead point is far ahead of the car that it has exceeded the reference trajectory and caused the vehicle to abruptly change the steering causing a loss in control.
 
         \begin{figure}[ht]
-        \includegraphics[width=0.6\linewidth]{ex6/q1/ex-61x70.eps}
+        \includegraphics[width=0.57\linewidth]{ex6/q1/ex-61x70.eps}
         \centering
         \caption{Real vehicle path with different look ahead values[$u$ = 70km/h] }
         \label{61x70}
@@ -192,9 +192,9 @@ Similar to the kinematic controller, the dynamic controller needed smaller maxim
         \end{figure}
    
    
-The comparison will be based on the maximum tracking error and the steering behaviour. One example of a low speed (30 km/h) and high speed (70 km/h) run was chosen for each controller. The best performing hyper parameters [look ahead, gains, max steer angle] for each controller were chosen based on the tests previously conducted. The tracking error results are shown in Figure \ref{64er}.
+The comparison will be based on the maximum tracking error and the steering behaviour. One example of a low speed (30 km/h) and high speed (70 km/h) run were chosen for each controller. The best performing hyper parameters [look ahead, gains, max steer angle] for each controller were chosen based on the tests previously conducted. The tracking error results are shown in Figure \ref{64er}.
 
-From a tracking error metric prospective, the pure pursuit controller performed the best on both low and high speeds. It was capable of maintaining stability at much higher speeds. As a comparison, pure pursuit was able to achieve target up to 130 km/hr, while the other controllers had trouble with any speed over 70 km/hr. Furthermore, pure pursuit requires only one hyper-parameter to tune.
+From a tracking error metric prospective, the pure pursuit controller performed the best on both low and high speeds. It was capable of maintaining stability at much higher speeds. As a comparison, pure pursuit was able to achieve target with speeds up to 130 km/hr, while the other controllers had trouble with any speed over 70 km/hr. Furthermore, pure pursuit requires only one hyper-parameter to tune.
 
 On the other side of the spectrum, Stanley Kinematic was the worst performer on both low and high speeds. For both the Stanely controllers, it was no surprise they would not perform well, especially on higher speeds due to the lack of a look ahead feature. 
 

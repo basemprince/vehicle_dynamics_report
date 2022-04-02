@@ -16,7 +16,7 @@ The optimization included multiple parameters which are listed below along with 
     [10, 30, 50, 70, 90]
 \end{itemize}
 
-The optimization metrics are mainly the elapsed time taken to calculate, the distance of the generated path, and the smoothness of said path.
+The optimization metrics are mainly the elapsed time taken to calculate the distance of the generated path, and the smoothness of said path.
 
 Figure \ref{71eltm} and Table \ref{tab:7.1} show the time taken for the RRT* to calculate the reference path. The results are categorized based on two variables, the connection distance and the number of iterations of the algorithm.
 
@@ -204,7 +204,7 @@ The tests agreed with the previous results achieved in the last chapter. From a 
 
 Figure \ref{72ff} is the steering behaviour for all the controllers at each speed. The pattern profile for the controllers looked very similar at low speed. Both of the Stanley controllers have a cut off because their max steer parameter is set at 4$^\circ$.
 
-At the higher speed, pure pursuit seemed to perform the best showing smoother curves. The Stanley controllers struggled and exhibited a lot of oscillations and jitters. The results for the tests are all summarized in table \ref{tab:7.3}. The green colored cells highlight the best performer in the each category for both speeds.
+At the higher speed, pure pursuit seemed to perform the best showing smoother curves. The Stanley controllers struggled and exhibited a lot of oscillations and jitters. The results for the tests are all summarized in table \ref{tab:7.3}. The green colored cells highlight the best performer in each category for both speeds.
 
 \begin{table}[ht!]
     \centering
@@ -230,7 +230,7 @@ At the higher speed, pure pursuit seemed to perform the best showing smoother cu
 
 The time taken to get to target is almost identical between the controllers because the bottleneck is the speed of the car. For the tracking error metric, pure pursuit performed best at both low and high speeds.
 
-To put a metric on the steering behaviour, I calculated the total steering input for each run in degrees. It was computed by summing the absolute values of the change in steering angle between every two consecutive time steps [equation \ref{eq:7.1}].
+To put a metric on the steering behaviour, I calculated the total steering input for each run in degrees [results are in Table \ref{tab:7.3}]. It was computed by summing the absolute values of the change in steering angle between every two consecutive time steps [equation \ref{eq:7.1}].
 
 \begin{equation}\label{eq:7.1} 
  \delta_{tot} = \sum_{n=1}^{N} |\delta_{i} - \delta_{i+1}|
